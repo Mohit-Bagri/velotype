@@ -22,7 +22,7 @@ export default function ModeBar({
     >
       {/* Capsule navbar */}
       <nav
-        className="inline-flex items-center gap-2 rounded-full px-6 py-3 transition-all duration-500 ease-out"
+        className="inline-flex items-center gap-2 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 transition-all duration-500 ease-out flex-wrap justify-center max-w-full"
         style={{
           background: 'var(--t-nav-bg)',
           border: '1px solid var(--t-nav-border)',
@@ -150,7 +150,7 @@ function NavPill({ children, active, disabled, onClick }) {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap
+      className={`rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap
         ${disabled ? 'opacity-30 !cursor-not-allowed' : ''}`}
       style={{
         color: active ? 'var(--t-text)' : 'var(--t-sub)',
