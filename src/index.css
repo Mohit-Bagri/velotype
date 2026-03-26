@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --color-bg: #0f0f14;
+  --color-bg-surface: #16161f;
+  --color-glass: rgba(255, 255, 255, 0.03);
+  --color-glass-hover: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.06);
+
+  --color-text: #d1d0e0;
+  --color-sub: rgba(255, 255, 255, 0.3);
+  --color-dim: rgba(255, 255, 255, 0.12);
+  --color-accent: #8b5cf6;
+  --color-accent-soft: rgba(139, 92, 246, 0.12);
+  --color-correct: #a3e635;
+  --color-error: #f87171;
+  --color-error-extra: rgba(248, 113, 113, 0.35);
+  --color-success: #86efac;
+  --color-warn: #fcd34d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: linear-gradient(180deg, #0f0f14 0%, #13131c 50%, #0f0f14 100%);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background-color: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-dim); border-radius: 2px; }
+
+/* Glass card utility */
+.glass {
+  background: var(--color-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-glass-border);
+}
+
+/* Smooth caret */
+@keyframes caret-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+.caret {
+  animation: caret-pulse 1s ease-in-out infinite;
+}
+
+/* ASCII logo animated gradient */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 0%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+.ascii-glow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  background: linear-gradient(
+    135deg,
+    #8b5cf6 0%,
+    #6366f1 15%,
+    #a78bfa 30%,
+    #c084fc 45%,
+    #818cf8 60%,
+    #7c3aed 75%,
+    #8b5cf6 100%
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 6s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3)) drop-shadow(0 0 40px rgba(139, 92, 246, 0.1));
+}

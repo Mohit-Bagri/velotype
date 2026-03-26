@@ -1,0 +1,147 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import ModeBar from './components/ModeBar'
+import Timer from './components/Timer'
+import TypingArea from './components/TypingArea'
+import Results from './components/Results'
+import { useTypingTest } from './hooks/useTypingTest'
+import { useSound } from './hooks/useSound'
+
+const ASCII_LOGO = `  ╦  ╦╔═╗╦  ╔═╗╔╦╗╦ ╦╔═╗╔═╗
+  ╚╗╔╝║╣ ║  ║ ║ ║ ╚╦╝╠═╝║╣
+   ╚╝ ╚═╝╩═╝╚═╝ ╩  ╩ ╩  ╚═╝`
+
+function App() {
+  const [mode, setMode] = useState('time')
+  const [duration, setDuration] = useState(15)
+  const [wordCount, setWordCount] = useState(25)
+  const [punctuation, setPunctuation] = useState(false)
+  const [numbers, setNumbers] = useState(false)
+  const [language, setLanguage] = useState('english')
+  const [quoteLength, setQuoteLength] = useState('short')
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = localStorage.getItem('velotype-sound')
+    return saved !== null ? saved === 'true' : true
+  })
+
+  const {
+    words, currentWordIndex, currentCharIndex, typed,
+    status, timeLeft, handleKeyDown, resetTest, getStats,
+  } = useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength })
+
+  const { playType, playError, playSpace, playBack } = useSound(soundEnabled)
+  const [stats, setStats] = useState(null)
+  const tabPressedRef = useRef(false)
+  const showChrome = status !== 'running'
+
+  useEffect(() => {
+    if (status === 'finished') setStats(getStats())
+    else setStats(null)
+  }, [status, getStats])
+
+  const toggleSound = useCallback(() => {
+    setSoundEnabled(prev => {
+      const next = !prev
+      localStorage.setItem('velotype-sound', String(next))
+      return next
+    })
+  }, [])
+
+  const handleKeyDownWithSound = useCallback((e) => {
+    if (e.key === ' ') playSpace()
+    else if (e.key === 'Backspace') playBack()
+    else if (e.key.length === 1) {
+      const w = words[currentWordIndex]
+      if (w && e.key === w[currentCharIndex] && currentCharIndex < w.length) playType()
+      else playError()
+    }
+    handleKeyDown(e)
+  }, [handleKeyDown, playType, playError, playSpace, playBack, words, currentWordIndex, currentCharIndex])
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Tab') { e.preventDefault(); tabPressedRef.current = true; setTimeout(() => { tabPressedRef.current = false }, 500); return }
+      if (e.key === 'Enter' && tabPressedRef.current) { e.preventDefault(); tabPressedRef.current = false; resetTest(); return }
+      if (e.key === 'Escape') { e.preventDefault(); resetTest() }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [resetTest])
+
+  useEffect(() => {
+    if (stats) {
+      const h = JSON.parse(localStorage.getItem('velotype-history') || '[]')
+      h.push({ wpm: stats.wpm, accuracy: stats.accuracy, duration: stats.elapsedSeconds, mode, language, date: new Date().toISOString() })
+      if (h.length > 50) h.shift()
+      localStorage.setItem('velotype-history', JSON.stringify(h))
+    }
+  }, [stats, mode, language])
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <main className="flex flex-1 flex-col items-center justify-center px-8">
+        <div className="w-full max-w-[1000px]">
+
+          {/* ASCII logo - centered, right above navbar */}
+          <motion.div
+            animate={{ opacity: showChrome ? 1 : 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex justify-center mb-8"
+          >
+            <pre className="ascii-glow text-center select-none">
+              {ASCII_LOGO}
+            </pre>
+          </motion.div>
+
+          {/* Navbar */}
+          <ModeBar
+            mode={mode} setMode={setMode}
+            duration={duration} setDuration={setDuration}
+            wordCount={wordCount} setWordCount={setWordCount}
+            punctuation={punctuation} setPunctuation={setPunctuation}
+            numbers={numbers} setNumbers={setNumbers}
+            language={language} setLanguage={setLanguage}
+            quoteLength={quoteLength} setQuoteLength={setQuoteLength}
+            visible={showChrome}
+            disabled={status === 'running'}
+            onReset={resetTest}
+            soundEnabled={soundEnabled}
+            onToggleSound={toggleSound}
+          />
+
+          {/* Content */}
+          {status !== 'finished' ? (
+            <motion.div key="typing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
+              <Timer timeLeft={timeLeft} status={status} mode={mode} />
+              <TypingArea
+                words={words}
+                currentWordIndex={currentWordIndex}
+                currentCharIndex={currentCharIndex}
+                typed={typed}
+                status={status}
+                onKeyDown={handleKeyDownWithSound}
+              />
+            </motion.div>
+          ) : (
+            <motion.div key="results" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+              <Results stats={stats} duration={stats?.elapsedSeconds || duration} mode={mode} onRestart={resetTest} />
+            </motion.div>
+          )}
+        </div>
+      </main>
+
+      <motion.footer
+        animate={{ opacity: showChrome && status === 'idle' ? 0.2 : 0 }}
+        transition={{ duration: 0.2 }}
+        className="py-5 text-center text-[11px] text-sub"
+      >
+        <kbd className="glass rounded px-1.5 py-0.5 text-[10px]">tab</kbd>
+        {' + '}
+        <kbd className="glass rounded px-1.5 py-0.5 text-[10px]">enter</kbd>
+        <span className="ml-1.5">restart</span>
+      </motion.footer>
+    </div>
+  )
+}
+
+export default App
