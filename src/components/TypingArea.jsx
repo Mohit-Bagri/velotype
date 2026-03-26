@@ -185,7 +185,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
       <div className="overflow-hidden relative" style={{ height: VISIBLE_LINES * LINE_HEIGHT }}>
         {!focused && status !== 'finished' && (
           <div className="absolute inset-0 z-[3] flex items-center justify-center backdrop-blur-sm rounded-xl" style={{ background: 'var(--t-unfocused-bg)' }}>
-            <span className="text-sm" style={{ color: 'var(--t-sub)' }}>Click here or press any key to focus</span>
+            <span className="text-sm" style={{ color: 'var(--t-sub)' }}>Click here to focus</span>
           </div>
         )}
 

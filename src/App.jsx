@@ -133,18 +133,15 @@ function App() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Top right controls */}
-      <div className="fixed top-5 right-5 z-50 flex items-center gap-2">
+      <div className="fixed top-5 right-5 z-50 flex items-center gap-3">
         <button
           onClick={() => setView('history')}
-          className="transition-colors cursor-pointer p-2 rounded-full"
-          style={{ color: 'var(--t-sub)' }}
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--t-text)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
-          title="History"
+          className="text-[12px] cursor-pointer transition-colors px-3 py-1.5 rounded-lg"
+          style={{ color: 'var(--t-sub)', border: '1px solid transparent' }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--t-text)'; e.currentTarget.style.borderColor = 'var(--t-glass-border)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'var(--t-sub)'; e.currentTarget.style.borderColor = 'transparent' }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-          </svg>
+          history
         </button>
         <ThemePicker current={theme} onChange={setTheme} />
       </div>

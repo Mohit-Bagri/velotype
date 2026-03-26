@@ -71,9 +71,17 @@ export default function ModeBar({
         {mode === 'code' && (
           <>
             <span className="w-px h-4 mx-1.5 shrink-0" style={{ background: 'var(--t-nav-border)' }} />
-            {codeLanguages.map(cl => (
-              <NavPill key={cl} active={cl === codeLanguage} disabled={disabled} onClick={() => setCodeLanguage(cl)}>{cl}</NavPill>
-            ))}
+            <select
+              value={codeLanguage}
+              onChange={e => !disabled && setCodeLanguage(e.target.value)}
+              disabled={disabled}
+              className="bg-transparent outline-none cursor-pointer appearance-none text-sm font-medium transition-all duration-200 disabled:opacity-40 px-3 py-1"
+              style={{ color: 'var(--t-text)', textShadow: '0 0 8px var(--t-accent)' }}
+            >
+              {codeLanguages.map(cl => (
+                <option key={cl} value={cl} style={{ background: 'var(--t-option-bg)', color: 'var(--t-text)' }}>{cl}</option>
+              ))}
+            </select>
           </>
         )}
 

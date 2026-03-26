@@ -101,22 +101,24 @@ export default function History({ onBack }) {
 
           {/* Recent tests table */}
           <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--t-glass-border)' }}>
-            <div className="px-6 py-3" style={{ background: 'var(--t-glass)' }}>
-              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>Recent Tests</span>
+            <div className="grid grid-cols-5 px-6 py-3" style={{ background: 'var(--t-glass)' }}>
+              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>wpm</span>
+              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>accuracy</span>
+              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>mode</span>
+              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>language</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-right" style={{ color: c.sub }}>date</span>
             </div>
-            <div className="divide-y" style={{ borderColor: 'var(--t-divider)' }}>
-              {history.slice(0, 20).map((h, i) => (
-                <div key={i} className="grid grid-cols-5 px-6 py-3 text-[13px]" style={{ borderColor: 'var(--t-divider)' }}>
-                  <span className="text-accent font-semibold tabular-nums">{h.wpm} wpm</span>
-                  <span style={{ color: h.accuracy >= 95 ? c.correct : h.accuracy >= 80 ? c.sub : c.err }}>{h.accuracy}%</span>
-                  <span style={{ color: c.sub }}>{h.mode}</span>
-                  <span style={{ color: c.sub }}>{h.language}</span>
-                  <span className="text-right" style={{ color: c.sub }}>
-                    {new Date(h.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {history.slice(0, 25).map((h, i) => (
+              <div key={i} className="grid grid-cols-5 px-6 py-2.5 text-[13px]" style={{ borderTop: `1px solid ${c.divider}` }}>
+                <span className="text-accent font-semibold tabular-nums">{h.wpm}</span>
+                <span className="tabular-nums" style={{ color: h.accuracy >= 95 ? c.correct : h.accuracy >= 80 ? c.sub : c.err }}>{h.accuracy}%</span>
+                <span style={{ color: c.sub }}>{h.mode}</span>
+                <span style={{ color: c.sub }}>{h.language}</span>
+                <span className="text-right tabular-nums" style={{ color: c.sub }}>
+                  {new Date(h.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+            ))}
           </div>
 
           {/* Clear history */}
