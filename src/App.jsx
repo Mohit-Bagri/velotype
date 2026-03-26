@@ -4,17 +4,18 @@ import ModeBar from './components/ModeBar'
 import Timer from './components/Timer'
 import TypingArea from './components/TypingArea'
 import Results from './components/Results'
+import ThemePicker from './components/ThemePicker'
 import { useTypingTest } from './hooks/useTypingTest'
 import { useSound } from './hooks/useSound'
 
-const LOGO_LINES = [
-  ' __   __        _         _____',
-  String.raw` \ \ / /  ___  | |  ___  |_   _|  _  _   _ __   ___`,
-  String.raw`  \ V /  / -_) | | / _ \   | |   | || | | '_ \ / -_)`,
-  String.raw`   \_/   \___| |_| \___/   |_|    \_, | | .__/ \___|`,
-  '                                  |__/  |_|',
-]
-const LOGO = LOGO_LINES.join('\n')
+const LOGO = [
+  '██╗   ██╗███████╗██╗      ██████╗ ████████╗██╗   ██╗██████╗ ███████╗',
+  '██║   ██║██╔════╝██║     ██╔═══██╗╚══██╔══╝╚██╗ ██╔╝██╔══██╗██╔════╝',
+  '██║   ██║█████╗  ██║     ██║   ██║   ██║    ╚████╔╝ ██████╔╝█████╗',
+  '╚██╗ ██╔╝██╔══╝  ██║     ██║   ██║   ██║     ╚██╔╝  ██╔═══╝ ██╔══╝',
+  ' ╚████╔╝ ███████╗███████╗╚██████╔╝   ██║      ██║   ██║     ███████╗',
+  '  ╚═══╝  ╚══════╝╚══════╝ ╚═════╝    ╚═╝      ╚═╝   ╚═╝     ╚══════╝',
+].join('\n')
 
 function App() {
   const [mode, setMode] = useState('time')
@@ -27,6 +28,15 @@ function App() {
   const [soundEnabled, setSoundEnabled] = useState(() => {
     return localStorage.getItem('velotype-sound') !== 'false'
   })
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('velotype-theme') || 'dark'
+  })
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('velotype-theme', theme)
+  }, [theme])
 
   const {
     words, currentWordIndex, currentCharIndex, typed,
@@ -83,6 +93,11 @@ function App() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Theme picker - top right */}
+      <div className="fixed top-5 right-5 z-50">
+        <ThemePicker current={theme} onChange={setTheme} />
+      </div>
+
       <main className="flex flex-1 flex-col items-center justify-center px-8">
         <div className="w-full max-w-[1000px]">
 

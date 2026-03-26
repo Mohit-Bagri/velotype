@@ -23,9 +23,9 @@ export default function ModeBar({
       <nav
         className="inline-flex items-center gap-2 rounded-full px-6 py-3 transition-all duration-500 ease-out"
         style={{
-          background: 'rgba(0,0,0,0.5)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.05), 0 8px 32px -8px rgba(0,0,0,0.6)',
+          background: 'var(--t-nav-bg)',
+          border: '1px solid var(--t-nav-border)',
+          boxShadow: 'var(--t-nav-shadow)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
         }}
@@ -38,7 +38,7 @@ export default function ModeBar({
             <NavPill active={numbers} disabled={disabled} onClick={() => setNumbers(!numbers)}>
               # numbers
             </NavPill>
-            <span className="w-px h-4 bg-white/[0.08] mx-1.5 shrink-0" />
+            <span className="w-px h-4 mx-1.5 shrink-0" style={{ background: 'var(--t-nav-border)' }} />
           </>
         )}
 
@@ -46,7 +46,7 @@ export default function ModeBar({
         <NavPill active={mode === 'words'} disabled={disabled} onClick={() => setMode('words')}>words</NavPill>
         <NavPill active={mode === 'quote'} disabled={disabled} onClick={() => setMode('quote')}>quote</NavPill>
 
-        <span className="w-px h-4 bg-white/[0.08] mx-1.5 shrink-0" />
+        <span className="w-px h-4 mx-1.5 shrink-0" style={{ background: 'var(--t-nav-border)' }} />
 
         {mode === 'time' && timeOpts.map(t => (
           <NavPill key={t} active={t === duration} disabled={disabled} onClick={() => setDuration(t)}>{t}</NavPill>
@@ -58,11 +58,11 @@ export default function ModeBar({
           <NavPill key={q} active={q === quoteLength} disabled={disabled} onClick={() => setQuoteLength(q)}>{q}</NavPill>
         ))}
 
-        <span className="w-px h-4 bg-white/[0.08] mx-1.5 shrink-0" />
+        <span className="w-px h-4 mx-1.5 shrink-0" style={{ background: 'var(--t-nav-border)' }} />
 
         <button
           onClick={onReset}
-          className="text-neutral-500 hover:text-white transition-colors cursor-pointer p-2 rounded-full hover:bg-white/[0.04]"
+          className="transition-colors cursor-pointer p-2 rounded-full" style={{ color: 'var(--t-sub)' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--t-text)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
           title="Restart test"
           tabIndex={-1}
         >
@@ -73,7 +73,7 @@ export default function ModeBar({
 
         <button
           onClick={onToggleSound}
-          className="text-neutral-500 hover:text-white transition-colors cursor-pointer p-2 rounded-full hover:bg-white/[0.04]"
+          className="transition-colors cursor-pointer p-2 rounded-full" style={{ color: 'var(--t-sub)' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--t-text)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
           title={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
           tabIndex={-1}
         >
@@ -95,7 +95,7 @@ export default function ModeBar({
       </nav>
 
       {/* Language */}
-      <div className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+      <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--t-sub)' }}>
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
           <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
@@ -104,10 +104,10 @@ export default function ModeBar({
           value={language}
           onChange={e => !disabled && setLanguage(e.target.value)}
           disabled={disabled}
-          className="bg-transparent outline-none cursor-pointer appearance-none text-neutral-500 hover:text-white transition-all duration-200 disabled:opacity-40 text-[11px]"
+          className="bg-transparent outline-none cursor-pointer appearance-none transition-all duration-200 disabled:opacity-40 text-[11px]" style={{ color: 'var(--t-sub)' }}
         >
           {languages.map(l => (
-            <option key={l} value={l} className="bg-[#0a0a0a] text-white">{l}</option>
+            <option key={l} value={l} style={{ background: 'var(--t-option-bg)', color: 'var(--t-text)' }}>{l}</option>
           ))}
         </select>
         <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="opacity-40">
@@ -124,14 +124,13 @@ function NavPill({ children, active, disabled, onClick }) {
       onClick={onClick}
       disabled={disabled}
       className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap
-        ${disabled ? 'opacity-30 !cursor-not-allowed' : ''}
-        ${active
-          ? 'text-white'
-          : 'text-neutral-500 hover:text-white'
-        }`}
-      style={active ? {
-        textShadow: '0 0 12px rgba(255,255,255,0.5)',
-      } : undefined}
+        ${disabled ? 'opacity-30 !cursor-not-allowed' : ''}`}
+      style={{
+        color: active ? 'var(--t-text)' : 'var(--t-sub)',
+        textShadow: active ? `0 0 12px var(--t-accent)` : 'none',
+      }}
+      onMouseEnter={e => { if (!active) e.target.style.color = 'var(--t-text)' }}
+      onMouseLeave={e => { if (!active) e.target.style.color = 'var(--t-sub)' }}
     >
       {children}
     </button>

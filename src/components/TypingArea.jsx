@@ -2,23 +2,45 @@ import { useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react
 
 const LINE_HEIGHT = 48
 const VISIBLE_LINES = 3
+const CARET_TRANSITION = 'transform 80ms ease-out, opacity 0.15s ease'
 
-const COL = {
-  untyped: 'rgba(255,255,255,0.18)',
-  correct: '#d1d0e0',
-  error: '#f87171',
-  extra: 'rgba(248,113,113,0.35)',
-  caret: '#8b5cf6',
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
+function getColors() {
+  return {
+    untyped: getCSSVar('--t-sub'),
+    correct: getCSSVar('--t-correct'),
+    error: getCSSVar('--t-error'),
+    extra: getCSSVar('--t-error-extra'),
+    caret: getCSSVar('--t-caret'),
+  }
 }
 
 export default function TypingArea({ words, currentWordIndex, currentCharIndex, typed, status, onKeyDown }) {
-  const colors = COL
+  const [colors, setColors] = useState(getColors)
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => setColors(getColors()))
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
+  }, [])
+
   const containerRef = useRef(null)
   const wordsRef = useRef(null)
   const wordEls = useRef({})
+  const charEls = useRef({})
   const [scrollY, setScrollY] = useState(0)
   const inputRef = useRef(null)
   const [focused, setFocused] = useState(true)
+
+  // Smooth caret state
+  const [caretPos, setCaretPos] = useState({ x: 0, y: 0 })
+  const [caretVisible, setCaretVisible] = useState(false)
+  const skipTransitionRef = useRef(true)
+  const caretIdleRef = useRef(null)
+  const [caretIdle, setCaretIdle] = useState(true)
 
   // Scroll: keep current word visible
   useLayoutEffect(() => {
@@ -29,7 +51,62 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
     setScrollY(prev => target >= prev ? target : prev)
   }, [currentWordIndex])
 
-  useEffect(() => { setScrollY(0) }, [words])
+  // Reset on new words
+  useEffect(() => {
+    setScrollY(0)
+    charEls.current = {}
+    skipTransitionRef.current = true
+    setCaretVisible(false)
+    requestAnimationFrame(() => {
+      setCaretVisible(true)
+      requestAnimationFrame(() => { skipTransitionRef.current = false })
+    })
+  }, [words])
+
+  // Calculate caret position
+  useLayoutEffect(() => {
+    let el = null
+    let x = 0, y = 0
+
+    if (currentCharIndex === 0) {
+      // Position at the start of the current word
+      el = wordEls.current[currentWordIndex]
+      if (el) {
+        x = el.offsetLeft
+        y = el.offsetTop
+      }
+    } else {
+      // Position after the last typed character
+      const key = `${currentWordIndex}-${currentCharIndex - 1}`
+      el = charEls.current[key]
+      if (el) {
+        x = el.offsetLeft + el.offsetWidth
+        y = el.offsetTop
+      }
+    }
+
+    if (el) {
+      setCaretPos({ x, y })
+      setCaretVisible(true)
+    }
+
+    // Reset idle timer (caret stays solid while typing, pulses when idle)
+    setCaretIdle(false)
+    clearTimeout(caretIdleRef.current)
+    caretIdleRef.current = setTimeout(() => setCaretIdle(true), 500)
+
+    return () => clearTimeout(caretIdleRef.current)
+  }, [currentWordIndex, currentCharIndex, typed, words])
+
+  // Detect line jumps to skip transition
+  const prevYRef = useRef(0)
+  useLayoutEffect(() => {
+    if (Math.abs(caretPos.y - prevYRef.current) > LINE_HEIGHT * 0.8) {
+      skipTransitionRef.current = true
+      requestAnimationFrame(() => { skipTransitionRef.current = false })
+    }
+    prevYRef.current = caretPos.y
+  }, [caretPos.y])
 
   // Focus management
   const focus = useCallback(() => {
@@ -43,7 +120,6 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
     }
   }, [status, words, focus])
 
-  // Keyboard handler on the input
   const onInput = useCallback((e) => {
     if (e.key === 'Tab' || e.key === 'Escape' || e.key === 'Enter') return
     e.preventDefault()
@@ -57,7 +133,6 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
       className="relative mx-auto w-full cursor-text select-none"
       onClick={focus}
     >
-      {/* Hidden but focusable input */}
       <input
         ref={inputRef}
         onKeyDown={onInput}
@@ -83,18 +158,17 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
         }}
       />
 
-      {/* Words display */}
       <div className="overflow-hidden relative" style={{ height: VISIBLE_LINES * LINE_HEIGHT }}>
-        {/* Out-of-focus overlay */}
         {!focused && status !== 'finished' && (
-          <div className="absolute inset-0 z-[3] flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-xl">
-            <span className="text-sub text-sm">Click here or press any key to focus</span>
+          <div className="absolute inset-0 z-[3] flex items-center justify-center backdrop-blur-sm rounded-xl" style={{ background: 'var(--t-unfocused-bg)' }}>
+            <span className="text-sm" style={{ color: 'var(--t-sub)' }}>Click here or press any key to focus</span>
           </div>
         )}
 
         <div
           ref={wordsRef}
           style={{
+            position: 'relative',
             fontSize: '1.45rem',
             lineHeight: `${LINE_HEIGHT}px`,
             display: 'flex',
@@ -104,12 +178,33 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
             transition: 'transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1)',
           }}
         >
+          {/* Smooth caret */}
+          {caretVisible && focused && status !== 'finished' && (
+            <div
+              className={caretIdle ? 'caret' : ''}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: 2.5,
+                height: '1.3em',
+                background: colors.caret,
+                boxShadow: `0 0 8px ${colors.caret}`,
+                borderRadius: 2,
+                pointerEvents: 'none',
+                zIndex: 2,
+                transform: `translate3d(${caretPos.x}px, ${caretPos.y + LINE_HEIGHT * 0.18}px, 0)`,
+                transition: skipTransitionRef.current ? 'none' : CARET_TRANSITION,
+                willChange: 'transform',
+              }}
+            />
+          )}
+
           {words.map((word, wi) => {
             const isCurrent = wi === currentWordIndex
             const isPast = wi < currentWordIndex
             const wordTyped = typed[wi] || {}
 
-            // Check past word errors
             let hasError = false
             if (isPast) {
               for (let c = 0; c < word.length; c++) {
@@ -129,32 +224,33 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                   textDecorationThickness: '2px',
                 }}
               >
-                {/* Caret at position 0 */}
-                {isCurrent && currentCharIndex === 0 && <Caret focused={focused} caretColor={colors.caret} />}
-
                 {word.split('').map((char, ci) => {
                   const cd = wordTyped[ci]
                   let color = colors.untyped
                   if (cd) color = cd.correct ? colors.correct : colors.error
 
                   return (
-                    <span key={ci} style={{ color, transition: 'color 0.06s ease' }}>
+                    <span
+                      key={ci}
+                      ref={el => { if (el) charEls.current[`${wi}-${ci}`] = el }}
+                      style={{ color, transition: 'color 0.06s ease' }}
+                    >
                       {char}
-                      {/* Caret after this char */}
-                      {isCurrent && ci + 1 === currentCharIndex && currentCharIndex <= word.length && <Caret focused={focused} caretColor={colors.caret} />}
                     </span>
                   )
                 })}
 
-                {/* Extra chars beyond word length */}
                 {Object.keys(wordTyped)
                   .map(Number)
                   .filter(idx => idx >= word.length)
                   .sort((a, b) => a - b)
                   .map(idx => (
-                    <span key={`x${idx}`} style={{ color: colors.extra }}>
+                    <span
+                      key={`x${idx}`}
+                      ref={el => { if (el) charEls.current[`${wi}-${idx}`] = el }}
+                      style={{ color: colors.extra }}
+                    >
                       {wordTyped[idx].char}
-                      {isCurrent && idx + 1 === currentCharIndex && <Caret focused={focused} caretColor={colors.caret} />}
                     </span>
                   ))
                 }
@@ -164,24 +260,5 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
         </div>
       </div>
     </div>
-  )
-}
-
-function Caret({ focused, caretColor = '#8b5cf6' }) {
-  return (
-    <span
-      className={focused ? 'caret' : ''}
-      style={{
-        display: 'inline-block',
-        width: 2.5,
-        height: '1.3em',
-        background: caretColor,
-        boxShadow: `0 0 8px ${caretColor}`,
-        borderRadius: 2,
-        verticalAlign: 'text-bottom',
-        marginLeft: -1,
-        marginRight: -1,
-      }}
-    />
   )
 }
