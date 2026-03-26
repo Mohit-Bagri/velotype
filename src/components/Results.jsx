@@ -146,8 +146,8 @@ export default function Results({ stats, duration, mode, language, punctuation, 
           <div className="text-[13px] leading-relaxed" style={{ color: c.sub }}>
             {language}
             {mode !== 'quote' && ` ${difficulty}`}
-            {punctuation && ' punctuation'}
-            {numbers && ' numbers'}
+            {mode !== 'quote' && punctuation && ' punctuation'}
+            {mode !== 'quote' && numbers && ' numbers'}
           </div>
         </DetailBlock>
         <DetailBlock label="raw" subColor={c.sub}>

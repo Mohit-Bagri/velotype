@@ -74,24 +74,15 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
       if (el) {
         const firstChar = charEls.current[`${currentWordIndex}-0`]
         const ref = firstChar || el
-        x = el.offsetLeft
-        // Use getBoundingClientRect relative to words container for precise Y
-        if (wordsRef.current) {
-          const parentRect = wordsRef.current.getBoundingClientRect()
-          const refRect = ref.getBoundingClientRect()
-          y = refRect.top - parentRect.top + scrollY  // undo the scroll transform
-        } else {
-          y = ref.offsetTop
-        }
+        x = ref.offsetLeft
+        y = ref.offsetTop
       }
     } else {
       const key = `${currentWordIndex}-${currentCharIndex - 1}`
       el = charEls.current[key]
-      if (el && wordsRef.current) {
-        const parentRect = wordsRef.current.getBoundingClientRect()
-        const elRect = el.getBoundingClientRect()
-        x = elRect.right - parentRect.left
-        y = elRect.top - parentRect.top + scrollY
+      if (el) {
+        x = el.offsetLeft + el.offsetWidth
+        y = el.offsetTop
       }
     }
 

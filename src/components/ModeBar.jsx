@@ -31,7 +31,7 @@ export default function ModeBar({
           WebkitBackdropFilter: 'blur(20px)',
         }}
       >
-        {(mode === 'time' || mode === 'words' || mode === 'zen') && (
+        {mode !== 'quote' && (
           <>
             <NavPill active={punctuation} disabled={disabled} onClick={() => setPunctuation(!punctuation)}>
               @ punctuation
