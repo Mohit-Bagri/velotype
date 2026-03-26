@@ -112,7 +112,7 @@ export default function Results({ stats, duration, mode, language, punctuation, 
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke={c.grid} vertical={false} />
-                <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} />
+                <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} label={{ value: 'Seconds', position: 'insideBottom', offset: -5, style: { fontSize: 9, fill: c.sub, textTransform: 'uppercase', letterSpacing: '0.12em' } }} />
                 <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={35} domain={[0, yMax]} allowDecimals={false} />
                 <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={30} allowDecimals={false} />
               <Tooltip content={<ChartTooltip colors={c} />} cursor={{ stroke: c.dim, strokeWidth: 1 }} />
