@@ -24,6 +24,8 @@ export default function ModeBar({
     >
       {/* Capsule navbar */}
       <nav
+        role="toolbar"
+        aria-label="Test settings"
         className="inline-flex items-center gap-2 rounded-full px-7 py-3 transition-all duration-500 ease-out flex-wrap justify-center"
         style={{
           background: 'var(--t-nav-bg)',
@@ -33,7 +35,7 @@ export default function ModeBar({
           WebkitBackdropFilter: 'blur(20px)',
         }}
       >
-        {mode !== 'quote' && (
+        {mode !== 'quote' && mode !== 'custom' && mode !== 'code' && (
           <>
             <NavPill active={punctuation} disabled={disabled} onClick={() => setPunctuation(!punctuation)}>
               @ punctuation
@@ -121,7 +123,8 @@ export default function ModeBar({
 
       </nav>
 
-      {/* Language + Difficulty */}
+      {/* Language + Difficulty (hidden for custom/code) */}
+      {mode !== 'custom' && mode !== 'code' && (
       <div className="flex items-center gap-4 text-[11px]" style={{ color: 'var(--t-sub)' }}>
         <div className="flex items-center gap-1.5">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -162,6 +165,7 @@ export default function ModeBar({
           </div>
         )}
       </div>
+      )}
     </motion.div>
   )
 }

@@ -4,7 +4,7 @@ export default function Timer({ timeLeft, status, mode, liveWpm, elapsedTime }) 
   }
 
   return (
-    <div style={{ height: 40 }} className="flex items-center gap-4 mb-1">
+    <div style={{ height: 40 }} className="flex items-center gap-4 mb-1" role="status" aria-live="polite" aria-label="Timer">
       {/* Time display */}
       {mode === 'time' && (
         <span className="text-2xl font-semibold tabular-nums leading-none text-accent">

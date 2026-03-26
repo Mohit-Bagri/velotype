@@ -79,16 +79,16 @@ export default function Results({ stats, duration, mode, language, punctuation, 
       className="w-full"
     >
       {/* ── Top section: Stats left + Chart right ── */}
-      <div className="flex gap-8 mb-6">
+      <div className="flex flex-col md:flex-row gap-6 md:gap-8 mb-6">
         {/* Left stats column */}
-        <div className="flex flex-col justify-center shrink-0" style={{ minWidth: 160 }}>
-          <div className="mb-8">
+        <div className="flex md:flex-col justify-center gap-8 md:gap-0 shrink-0 md:min-w-[160px]">
+          <div className="md:mb-8">
             <div className="text-[11px] uppercase tracking-[0.2em] mb-2" style={{ color: c.sub }}>wpm</div>
-            <div className="text-[3.5rem] font-bold leading-none tabular-nums text-accent">{stats.wpm}</div>
+            <div className="text-[2.5rem] md:text-[3.5rem] font-bold leading-none tabular-nums text-accent">{stats.wpm}</div>
           </div>
           <div>
             <div className="text-[11px] uppercase tracking-[0.2em] mb-2" style={{ color: c.sub }}>acc</div>
-            <div className="text-[3.5rem] font-bold leading-none tabular-nums text-accent">{stats.accuracy}%</div>
+            <div className="text-[2.5rem] md:text-[3.5rem] font-bold leading-none tabular-nums text-accent">{stats.accuracy}%</div>
           </div>
         </div>
 
@@ -138,16 +138,16 @@ export default function Results({ stats, duration, mode, language, punctuation, 
       <div className="h-px mt-10" style={{ background: c.divider }} />
 
       {/* ── Details row ── */}
-      <div className="grid grid-cols-5 pt-8 pb-8 px-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 pt-8 pb-8 px-2">
         <DetailBlock label="test type" subColor={c.sub}>
           <div className="text-accent leading-relaxed">
             {mode}{mode === 'time' ? ` ${duration}s` : mode === 'words' ? ` ${wordCount}` : ''}
           </div>
           <div className="text-[13px] leading-relaxed" style={{ color: c.sub }}>
-            {language}
-            {mode !== 'quote' && ` ${difficulty}`}
-            {mode !== 'quote' && punctuation && ' punctuation'}
-            {mode !== 'quote' && numbers && ' numbers'}
+            {mode !== 'custom' && mode !== 'code' && language}
+            {mode !== 'quote' && mode !== 'custom' && mode !== 'code' && ` ${difficulty}`}
+            {mode !== 'quote' && mode !== 'custom' && punctuation && ' punctuation'}
+            {mode !== 'quote' && mode !== 'custom' && numbers && ' numbers'}
           </div>
         </DetailBlock>
         <DetailBlock label="raw" subColor={c.sub}>

@@ -167,6 +167,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
           width: '100%',
           height: VISIBLE_LINES * LINE_HEIGHT,
           opacity: 0,
+          fontSize: '16px', // prevents iOS zoom on focus
           zIndex: 5,
           cursor: 'text',
         }}

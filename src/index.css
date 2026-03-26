@@ -406,3 +406,46 @@ body {
   background-clip: text;
   filter: drop-shadow(0 0 20px var(--t-logo-glow)) drop-shadow(0 0 40px var(--t-logo-glow));
 }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .ascii-glow {
+    font-size: 0.32rem;
+    line-height: 1.1;
+  }
+}
+
+@media (max-width: 480px) {
+  .ascii-glow {
+    font-size: 0.24rem;
+  }
+}
+
+/* ══════════════════════════════════════════
+   ACCESSIBILITY
+   ══════════════════════════════════════════ */
+
+/* Visible focus ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--t-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .caret { animation: none; }
+  .ascii-glow { animation: none; }
+}
