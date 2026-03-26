@@ -61,7 +61,7 @@ export default function CustomTextModal({ open, onClose, onSubmit }) {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center justify-between px-6 py-5">
               <span className="text-[11px] tabular-nums" style={{ color: 'var(--t-sub)' }}>
                 {wordCount} word{wordCount !== 1 ? 's' : ''}
               </span>
@@ -82,7 +82,7 @@ export default function CustomTextModal({ open, onClose, onSubmit }) {
                     color: '#fff',
                   }}
                 >
-                  Start typing
+                  Start
                 </button>
               </div>
             </div>

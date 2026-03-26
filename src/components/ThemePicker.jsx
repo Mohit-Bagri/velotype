@@ -22,15 +22,16 @@ export default function ThemePicker({ current, onChange, disabled }) {
     return () => document.removeEventListener('mousedown', close)
   }, [])
 
+  const [hover, setHover] = useState(false)
+
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => !disabled && setOpen(!open)}
         className="transition-colors cursor-pointer p-2 rounded-full"
-        style={{ color: 'var(--t-sub)' }}
-        onMouseEnter={e => e.currentTarget.style.color = 'var(--t-text)'}
-        onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
-        title="Change theme"
+        style={{ color: hover ? 'var(--t-text)' : 'var(--t-sub)' }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
         tabIndex={-1}
         disabled={disabled}
       >
@@ -46,6 +47,16 @@ export default function ThemePicker({ current, onChange, disabled }) {
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
         </svg>
       </button>
+
+      {/* Fast tooltip */}
+      {hover && !open && (
+        <div
+          className="absolute top-full right-0 mt-1 px-2.5 py-1 rounded-md text-[10px] whitespace-nowrap pointer-events-none"
+          style={{ background: 'var(--t-tooltip-bg)', border: '1px solid var(--t-tooltip-border)', color: 'var(--t-sub)' }}
+        >
+          Theme
+        </div>
+      )}
 
       {open && (
         <div

@@ -98,7 +98,7 @@ function App() {
     if (stats && !stats.suspicious) {
       const h = JSON.parse(localStorage.getItem('velotype-history') || '[]')
       h.push({ wpm: stats.wpm, rawWpm: stats.rawWpm, accuracy: stats.accuracy, consistency: stats.consistency, duration: stats.elapsedSeconds, mode, language, difficulty, date: new Date().toISOString() })
-      if (h.length > 50) h.shift()
+      if (h.length > 200) h.shift()
       localStorage.setItem('velotype-history', JSON.stringify(h))
     }
   }, [stats, mode, language])
