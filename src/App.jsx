@@ -147,14 +147,14 @@ function App() {
               />
               {/* Tip below typing area */}
               <motion.div
-                animate={{ opacity: status === 'idle' ? 1 : 0 }}
+                animate={{ opacity: (status === 'idle' || (mode === 'zen' && status === 'running')) ? 1 : 0 }}
                 transition={{ duration: 0.2 }}
                 className="text-center mt-10"
                 style={{ pointerEvents: 'none' }}
               >
                 <span className="tip-glow text-[11px] tracking-wider">
                   <kbd className="glass rounded px-1.5 py-0.5 text-[10px] mx-0.5">esc</kbd>
-                  <span className="ml-1.5">— restart test</span>
+                  <span className="ml-1.5">{mode === 'zen' && status === 'running' ? '- end session' : '- restart test'}</span>
                 </span>
               </motion.div>
             </motion.div>

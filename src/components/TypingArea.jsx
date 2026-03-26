@@ -130,8 +130,18 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
     }
   }, [status, words, focus])
 
+  // Detect caps lock on any keydown globally
+  useEffect(() => {
+    const detectCaps = (e) => setCapsLock(e.getModifierState('CapsLock'))
+    window.addEventListener('keydown', detectCaps)
+    window.addEventListener('keyup', detectCaps)
+    return () => {
+      window.removeEventListener('keydown', detectCaps)
+      window.removeEventListener('keyup', detectCaps)
+    }
+  }, [])
+
   const onInput = useCallback((e) => {
-    setCapsLock(e.getModifierState('CapsLock'))
     if (e.key === 'Tab' || e.key === 'Escape' || e.key === 'Enter') return
     e.preventDefault()
     e.stopPropagation()
