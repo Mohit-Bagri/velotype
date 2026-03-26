@@ -64,6 +64,11 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+.tip-glow {
+  color: rgba(255, 255, 255, 0.25);
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.3), 0 0 20px rgba(139, 92, 246, 0.15);
+}
+
 .ascii-glow {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;

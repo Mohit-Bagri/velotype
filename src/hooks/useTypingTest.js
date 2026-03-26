@@ -114,6 +114,23 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
       if (currentCharIndex === 0) return
       totalTypedRef.current += 1
       totalCorrectRef.current += 1
+
+      // Count skipped characters as errors
+      const skipped = Math.max(0, currentWord.length - currentCharIndex)
+      if (skipped > 0) {
+        totalErrorsRef.current += skipped
+        totalTypedRef.current += skipped
+      }
+
+      // Finish on last word (words/quote modes)
+      if ((mode === 'words' || mode === 'quote') && currentWordIndex === words.length - 1) {
+        clearInterval(timerRef.current)
+        clearInterval(snapshotRef.current)
+        setCurrentWordIndex(prev => prev + 1)
+        setStatus('finished')
+        return
+      }
+
       setCurrentWordIndex(prev => prev + 1)
       setCurrentCharIndex(0)
       return
@@ -167,13 +184,7 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
     }))
     setCurrentCharIndex(prev => prev + 1)
 
-    // Auto-finish on last character of last word (words/quote modes)
-    if ((mode === 'words' || mode === 'quote') && currentWordIndex === words.length - 1 && currentCharIndex + 1 >= currentWord.length) {
-      clearInterval(timerRef.current)
-      clearInterval(snapshotRef.current)
-      setCurrentWordIndex(prev => prev + 1)
-      setStatus('finished')
-    }
+    // No auto-finish on last char — user must press space to submit the last word
   }, [status, words, currentWordIndex, currentCharIndex, typed, startTest, mode])
 
   const getElapsedSeconds = useCallback(() => {

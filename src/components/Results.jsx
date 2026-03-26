@@ -39,7 +39,7 @@ function TipRow({ color, label, val }) {
   )
 }
 
-export default function Results({ stats, duration, mode, onRestart }) {
+export default function Results({ stats, duration, mode, language, punctuation, numbers, wordCount }) {
   if (!stats) return null
 
   const data = stats.wpmHistory.map((wpm, i) => ({
@@ -53,123 +53,112 @@ export default function Results({ stats, duration, mode, onRestart }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="w-full rounded-2xl overflow-hidden"
-      style={{
-        background: 'rgba(0,0,0,0.4)',
-        border: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.03), 0 16px 48px -16px rgba(0,0,0,0.5)',
-        backdropFilter: 'blur(20px)',
-      }}
+      className="w-full"
     >
-      {/* ── Stats ── */}
-      <div className="grid grid-cols-4 gap-4 p-8 pb-6">
-        <StatCard label="wpm" value={stats.wpm} highlight />
-        <StatCard label="accuracy" value={`${stats.accuracy}%`} highlight />
-        <StatCard label="raw wpm" value={stats.rawWpm} />
-        <StatCard label="consistency" value={`${stats.consistency}%`} />
-      </div>
-
-      <div className="mx-14 h-px" style={{ background: divider }} />
-
-      {/* ── Chart ── */}
-      <div className="px-8 pt-7 pb-4">
-        <div className="flex items-center justify-between mb-5 px-6">
-          <span className="text-[10px] uppercase tracking-[0.2em] font-medium" style={{ color: sub }}>
-            Performance
-          </span>
-          <div className="flex items-center gap-6 text-[11px]" style={{ color: sub }}>
-            <span className="flex items-center gap-2">
-              <svg width="16" height="8"><line x1="0" y1="4" x2="16" y2="4" stroke={accent} strokeWidth="2" /></svg>
-              wpm
-            </span>
-            <span className="flex items-center gap-2">
-              <svg width="16" height="8"><line x1="0" y1="4" x2="16" y2="4" stroke={raw} strokeWidth="1.5" strokeDasharray="3 3" /></svg>
-              raw
-            </span>
-            <span className="flex items-center gap-2">
-              <span style={{ color: err, fontWeight: 700, fontSize: 11 }}>x</span>
-              errors
-            </span>
+      {/* ── Top section: Stats left + Chart right ── */}
+      <div className="flex gap-8 mb-6">
+        {/* Left stats column */}
+        <div className="flex flex-col justify-center shrink-0" style={{ minWidth: 160 }}>
+          <div className="mb-8">
+            <div className="text-[11px] uppercase tracking-[0.2em] mb-2" style={{ color: sub }}>wpm</div>
+            <div className="text-[3.5rem] font-bold leading-none tabular-nums text-accent">{stats.wpm}</div>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.2em] mb-2" style={{ color: sub }}>acc</div>
+            <div className="text-[3.5rem] font-bold leading-none tabular-nums text-accent">{stats.accuracy}%</div>
           </div>
         </div>
 
-        <ResponsiveContainer width="100%" height={250}>
-          <AreaChart data={data} margin={{ top: 10, right: 50, left: 20, bottom: 5 }}>
-            <defs>
-              <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={accent} stopOpacity={0.15} />
-                <stop offset="100%" stopColor={accent} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid stroke={grid} vertical={false} />
-            <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: sub }} tickLine={false} axisLine={false} />
-            <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: sub }} tickLine={false} axisLine={false} width={40} domain={[0, yMax]} allowDecimals={false} />
-            <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: sub }} tickLine={false} axisLine={false} width={35} allowDecimals={false} />
-            <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }} />
-            <Area yAxisId="w" type="monotone" dataKey="wpm" name="WPM" stroke={accent} strokeWidth={2} fill="url(#wg)" dot={false} activeDot={{ r: 4, fill: accent, stroke: '#0f0f14', strokeWidth: 2 }} />
-            <Line yAxisId="w" type="monotone" dataKey="raw" name="Raw" stroke={raw} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-            <Line yAxisId="e" type="stepAfter" dataKey="err" name="Errors" stroke="transparent" dot={p => {
-              if (!p.payload || p.payload.err <= 0) return null
-              return <svg key={p.index} x={p.cx-5} y={p.cy-6} width={10} height={12}><text x={5} y={10} textAnchor="middle" fill={err} fontSize={11} fontWeight="bold">x</text></svg>
-            }} />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="mx-14 h-px" style={{ background: divider }} />
-
-      {/* ── Details ── */}
-      <div className="grid grid-cols-3 px-14 py-8">
-        <div className="pl-2">
-          <div className="text-[10px] uppercase tracking-[0.2em] mb-2.5" style={{ color: sub }}>test type</div>
-          <div className="text-accent text-[15px] font-medium">
-            {mode}{mode === 'time' ? ` ${duration}` : ''}{' '}
-            <span className="text-neutral-500">english</span>
+        {/* Chart with vertical axis labels */}
+        <div className="flex-1 min-w-0 flex">
+          {/* Left vertical label */}
+          <div className="flex items-center shrink-0" style={{ width: 18 }}>
+            <span className="text-[9px] uppercase tracking-[0.15em] whitespace-nowrap" style={{ color: sub, transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
+              Words per Minute
+            </span>
           </div>
-        </div>
-        <div className="text-center">
-          <div className="text-[10px] uppercase tracking-[0.2em] mb-2.5" style={{ color: sub }}>characters</div>
-          <div className="text-[15px] font-semibold tabular-nums">
-            <span style={{ color: correct }}>{stats.correct}</span>
-            <span style={{ color: 'rgba(255,255,255,0.1)' }}> / </span>
-            <span style={{ color: err }}>{stats.incorrect}</span>
-            <span style={{ color: 'rgba(255,255,255,0.1)' }}> / </span>
-            <span style={{ color: 'rgba(255,255,255,0.25)' }}>{stats.missed}</span>
-            <span style={{ color: 'rgba(255,255,255,0.1)' }}> / </span>
-            <span style={{ color: 'rgba(255,255,255,0.25)' }}>{stats.totalChars}</span>
+
+          {/* Chart area */}
+          <div className="flex-1 min-w-0">
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={data} margin={{ top: 5, right: 35, left: 5, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={accent} stopOpacity={0.15} />
+                    <stop offset="100%" stopColor={accent} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke={grid} vertical={false} />
+                <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: sub }} tickLine={false} axisLine={false} />
+                <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: sub }} tickLine={false} axisLine={false} width={35} domain={[0, yMax]} allowDecimals={false} />
+                <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: sub }} tickLine={false} axisLine={false} width={30} allowDecimals={false} />
+                <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }} />
+                <Area yAxisId="w" type="monotone" dataKey="wpm" name="WPM" stroke={accent} strokeWidth={2} fill="url(#wg)" dot={false} activeDot={{ r: 4, fill: accent, stroke: '#0f0f14', strokeWidth: 2 }} />
+                <Line yAxisId="w" type="monotone" dataKey="raw" name="Raw" stroke={raw} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+                <Line yAxisId="e" type="stepAfter" dataKey="err" name="Errors" stroke="transparent" dot={p => {
+                  if (!p.payload || p.payload.err <= 0) return null
+                  return <svg key={p.index} x={p.cx-5} y={p.cy-6} width={10} height={12}><text x={5} y={10} textAnchor="middle" fill={err} fontSize={11} fontWeight="bold">x</text></svg>
+                }} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
-        </div>
-        <div className="text-right pr-2">
-          <div className="text-[10px] uppercase tracking-[0.2em] mb-2.5" style={{ color: sub }}>time</div>
-          <div className="text-text text-[15px] font-semibold tabular-nums">{stats.elapsedSeconds || duration}s</div>
+
+          {/* Right vertical label */}
+          <div className="flex items-center shrink-0" style={{ width: 18 }}>
+            <span className="text-[9px] uppercase tracking-[0.15em] whitespace-nowrap" style={{ color: sub, transform: 'rotate(90deg)', transformOrigin: 'center' }}>
+              Errors
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="mx-14 h-px" style={{ background: divider }} />
+      <div className="h-px" style={{ background: divider }} />
 
-      {/* ── Restart ── */}
-      <div className="flex justify-center py-5">
-        <button
-          onClick={onRestart}
-          className="text-neutral-500 hover:text-white transition-all duration-200 cursor-pointer p-3 rounded-full hover:bg-white/[0.04]"
-          tabIndex={-1}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2" />
-          </svg>
-        </button>
+      {/* ── Details row ── */}
+      <div className="grid grid-cols-5 py-6 px-2">
+        <DetailBlock label="test type">
+          <div className="text-accent leading-relaxed">
+            {mode} {mode === 'time' ? duration : wordCount}
+            {punctuation && <span className="text-neutral-400"> punctuation</span>}
+            {numbers && <span className="text-neutral-400"> numbers</span>}
+          </div>
+          <div className="text-neutral-500">{language}</div>
+        </DetailBlock>
+        <DetailBlock label="raw">
+          <span className="text-text">{stats.rawWpm}</span>
+        </DetailBlock>
+        <DetailBlock label="characters" center>
+          <span style={{ color: correct }}>{stats.correct}</span>
+          <span style={{ color: 'rgba(255,255,255,0.1)' }}>/</span>
+          <span style={{ color: err }}>{stats.incorrect}</span>
+          <span style={{ color: 'rgba(255,255,255,0.1)' }}>/</span>
+          <span style={{ color: 'rgba(255,255,255,0.25)' }}>{stats.missed}</span>
+          <span style={{ color: 'rgba(255,255,255,0.1)' }}>/</span>
+          <span style={{ color: 'rgba(255,255,255,0.25)' }}>{stats.totalChars}</span>
+        </DetailBlock>
+        <DetailBlock label="consistency" center>
+          <span className="text-text">{stats.consistency}%</span>
+        </DetailBlock>
+        <DetailBlock label="time" right>
+          <span className="text-text">{stats.elapsedSeconds || duration}s</span>
+        </DetailBlock>
+      </div>
+
+      {/* ── Tip ── */}
+      <div className="text-center mt-6">
+        <span className="tip-glow text-[11px] tracking-wider">
+          tip: press <kbd className="glass rounded px-1.5 py-0.5 text-[10px] mx-0.5">esc</kbd> to restart
+        </span>
       </div>
     </motion.div>
   )
 }
 
-function StatCard({ label, value, highlight }) {
+function DetailBlock({ label, children, center, right }) {
   return (
-    <div className="py-6 text-center rounded-xl" style={{ background: 'rgba(255,255,255,0.015)' }}>
-      <div className="text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: sub }}>{label}</div>
-      <div className={`text-[2.75rem] font-bold leading-none tabular-nums ${highlight ? 'text-accent' : 'text-text'}`}>
-        {value}
-      </div>
+    <div className={center ? 'text-center' : right ? 'text-right' : ''}>
+      <div className="text-[10px] uppercase tracking-[0.2em] mb-2" style={{ color: sub }}>{label}</div>
+      <div className="text-[1.1rem] font-semibold tabular-nums">{children}</div>
     </div>
   )
 }

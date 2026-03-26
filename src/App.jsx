@@ -7,12 +7,14 @@ import Results from './components/Results'
 import { useTypingTest } from './hooks/useTypingTest'
 import { useSound } from './hooks/useSound'
 
-const LOGO = `
- _   _ _____ _     ___ _____ _   _ ____  _____
-| | | | ____| |   / _ \\_   _\\ \\ / |  _ \\| ____|
-| | | |  _| | |  | | | || |  \\   /| |_) |  _|
-| \\_/ | |___| |__| |_| || |   | | |  __/| |___
- \\___/|_____|____|\\___/ |_|   |_| |_|   |_____|`.trimStart()
+const LOGO_LINES = [
+  ' __   __        _         _____',
+  String.raw` \ \ / /  ___  | |  ___  |_   _|  _  _   _ __   ___`,
+  String.raw`  \ V /  / -_) | | / _ \   | |   | || | | '_ \ / -_)`,
+  String.raw`   \_/   \___| |_| \___/   |_|    \_, | | .__/ \___|`,
+  '                                  |__/  |_|',
+]
+const LOGO = LOGO_LINES.join('\n')
 
 function App() {
   const [mode, setMode] = useState('time')
@@ -90,7 +92,7 @@ function App() {
             transition={{ duration: 0.25 }}
             className="flex justify-center mb-6"
           >
-            <pre className="ascii-glow text-center select-none">{LOGO}</pre>
+            <pre className="ascii-glow select-none text-left">{LOGO}</pre>
           </motion.div>
 
           {/* Navbar */}
@@ -121,25 +123,26 @@ function App() {
                 status={status}
                 onKeyDown={handleKeyDownWithSound}
               />
+              {/* Tip below typing area */}
+              <motion.div
+                animate={{ opacity: status === 'idle' ? 1 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-center mt-10"
+                style={{ pointerEvents: 'none' }}
+              >
+                <span className="tip-glow text-[11px] tracking-wider">
+                  <kbd className="glass rounded px-1.5 py-0.5 text-[10px] mx-0.5">esc</kbd>
+                  <span className="ml-1.5">— restart test</span>
+                </span>
+              </motion.div>
             </motion.div>
           ) : (
             <motion.div key="results" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-              <Results stats={stats} duration={stats?.elapsedSeconds || duration} mode={mode} onRestart={resetTest} />
+              <Results stats={stats} duration={stats?.elapsedSeconds || duration} mode={mode} language={language} punctuation={punctuation} numbers={numbers} wordCount={wordCount} />
             </motion.div>
           )}
         </div>
       </main>
-
-      <motion.footer
-        animate={{ opacity: showChrome && status === 'idle' ? 0.2 : 0 }}
-        transition={{ duration: 0.2 }}
-        className="py-5 text-center text-[11px] text-sub"
-      >
-        <kbd className="glass rounded px-1.5 py-0.5 text-[10px]">tab</kbd>
-        {' + '}
-        <kbd className="glass rounded px-1.5 py-0.5 text-[10px]">enter</kbd>
-        <span className="ml-1.5">restart</span>
-      </motion.footer>
     </div>
   )
 }
