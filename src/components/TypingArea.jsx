@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react
 
 const LINE_HEIGHT = 48
 const VISIBLE_LINES = 3
-const CARET_TRANSITION = 'transform 80ms ease-out, opacity 0.15s ease'
+const CARET_TRANSITION = 'transform 100ms cubic-bezier(0.17, 0.67, 0.5, 1), opacity 0.15s ease'
 
 function getCSSVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
@@ -69,21 +69,28 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
     let x = 0, y = 0
 
     if (currentCharIndex === 0) {
-      // Position at the start of the current word
       el = wordEls.current[currentWordIndex]
       if (el) {
-        // Use the first char element if available for precise Y
         const firstChar = charEls.current[`${currentWordIndex}-0`]
+        const ref = firstChar || el
         x = el.offsetLeft
-        y = firstChar ? firstChar.offsetTop : el.offsetTop
+        // Use getBoundingClientRect relative to words container for precise Y
+        if (wordsRef.current) {
+          const parentRect = wordsRef.current.getBoundingClientRect()
+          const refRect = ref.getBoundingClientRect()
+          y = refRect.top - parentRect.top + scrollY  // undo the scroll transform
+        } else {
+          y = ref.offsetTop
+        }
       }
     } else {
-      // Position after the last typed character
       const key = `${currentWordIndex}-${currentCharIndex - 1}`
       el = charEls.current[key]
-      if (el) {
-        x = el.offsetLeft + el.offsetWidth
-        y = el.offsetTop
+      if (el && wordsRef.current) {
+        const parentRect = wordsRef.current.getBoundingClientRect()
+        const elRect = el.getBoundingClientRect()
+        x = elRect.right - parentRect.left
+        y = elRect.top - parentRect.top + scrollY
       }
     }
 
@@ -195,7 +202,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                 borderRadius: 2,
                 pointerEvents: 'none',
                 zIndex: 2,
-                transform: `translate3d(${caretPos.x}px, ${caretPos.y + 9}px, 0)`,
+                transform: `translate3d(${caretPos.x}px, ${caretPos.y}px, 0)`,
                 transition: skipTransitionRef.current ? 'none' : CARET_TRANSITION,
                 willChange: 'transform',
               }}

@@ -92,24 +92,29 @@ export default function Results({ stats, duration, mode, language, punctuation, 
           </div>
         </div>
 
-        {/* Chart */}
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between px-1 mb-1">
-            <span className="text-[9px] uppercase tracking-[0.15em]" style={{ color: c.sub }}>Words per Minute</span>
-            <span className="text-[9px] uppercase tracking-[0.15em]" style={{ color: c.sub }}>Errors</span>
+        {/* Chart with axis labels */}
+        <div className="flex-1 min-w-0 flex">
+          {/* Left axis label */}
+          <div className="flex items-center justify-center shrink-0" style={{ width: 16 }}>
+            <div className="text-[9px] uppercase tracking-[0.12em] whitespace-nowrap" style={{ color: c.sub, writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+              Words per Minute
+            </div>
           </div>
-          <ResponsiveContainer width="100%" height={210}>
-            <AreaChart data={data} margin={{ top: 5, right: 40, left: 10, bottom: 5 }}>
-              <defs>
-                <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={c.accent} stopOpacity={0.15} />
-                  <stop offset="100%" stopColor={c.accent} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid stroke={c.grid} vertical={false} />
-              <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} />
-              <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={35} domain={[0, yMax]} allowDecimals={false} />
-              <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={30} allowDecimals={false} />
+
+          {/* Chart */}
+          <div className="flex-1 min-w-0">
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={data} margin={{ top: 5, right: 35, left: 5, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={c.accent} stopOpacity={0.15} />
+                    <stop offset="100%" stopColor={c.accent} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke={c.grid} vertical={false} />
+                <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} />
+                <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={35} domain={[0, yMax]} allowDecimals={false} />
+                <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={30} allowDecimals={false} />
               <Tooltip content={<ChartTooltip colors={c} />} cursor={{ stroke: c.dim, strokeWidth: 1 }} />
               <Area yAxisId="w" type="monotone" dataKey="wpm" name="WPM" stroke={c.accent} strokeWidth={2} fill="url(#wg)" dot={false} activeDot={{ r: 4, fill: c.accent, stroke: c.bgSurface, strokeWidth: 2 }} />
               <Line yAxisId="w" type="monotone" dataKey="raw" name="Raw" stroke={c.raw} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
@@ -118,7 +123,15 @@ export default function Results({ stats, duration, mode, language, punctuation, 
                 return <svg key={p.index} x={p.cx-5} y={p.cy-6} width={10} height={12}><text x={5} y={10} textAnchor="middle" fill={c.err} fontSize={11} fontWeight="bold">x</text></svg>
               }} />
             </AreaChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Right axis label */}
+          <div className="flex items-center justify-center shrink-0" style={{ width: 16 }}>
+            <div className="text-[9px] uppercase tracking-[0.12em] whitespace-nowrap" style={{ color: c.sub, writingMode: 'vertical-rl' }}>
+              Errors
+            </div>
+          </div>
         </div>
       </div>
 
