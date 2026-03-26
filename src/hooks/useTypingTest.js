@@ -1,19 +1,22 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { generateWords } from '../data/words'
 import { getQuote } from '../data/quotes'
+import { getCodeSnippet } from '../data/codeSnippets'
 
 const SNAPSHOT_INTERVAL = 1000
 
-function getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength, difficulty }) {
+function getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength, difficulty, codeLanguage, customWords }) {
+  if (mode === 'custom' && customWords) return customWords
+  if (mode === 'code') return getCodeSnippet(codeLanguage)
   if (mode === 'quote') return getQuote(quoteLength)
   if (mode === 'words') return generateWords(wordCount, { punctuation, numbers, language, difficulty })
   if (mode === 'zen') return generateWords(500, { punctuation, numbers, language, difficulty })
   return generateWords(250, { punctuation, numbers, language, difficulty }) // time mode
 }
 
-export function useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty }) {
+export function useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty, codeLanguage, customWords }) {
   const [words, setWords] = useState(() =>
-    getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength })
+    getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength, difficulty, codeLanguage, customWords })
   )
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [currentCharIndex, setCurrentCharIndex] = useState(0)
@@ -42,7 +45,7 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
     clearInterval(timerRef.current)
     clearInterval(snapshotRef.current)
     clearInterval(liveWpmRef.current)
-    setWords(getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength, difficulty }))
+    setWords(getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength, difficulty, codeLanguage, customWords }))
     setCurrentWordIndex(0)
     setCurrentCharIndex(0)
     setTyped({})
@@ -60,11 +63,11 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
     prevSnapshotErrorsRef.current = 0
     keystrokeTimesRef.current = []
     suspiciousRef.current = false
-  }, [mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty])
+  }, [mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty, codeLanguage, customWords])
 
   useEffect(() => {
     resetTest()
-  }, [mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty, resetTest])
+  }, [mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty, codeLanguage, customWords, resetTest])
 
   const startTest = useCallback(() => {
     if (status !== 'idle') return
@@ -114,7 +117,7 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
 
   // Finish when all words typed (words mode and quote mode)
   useEffect(() => {
-    if ((mode === 'words' || mode === 'quote') && status === 'running' && currentWordIndex >= words.length) {
+    if ((mode === 'words' || mode === 'quote' || mode === 'custom' || mode === 'code') && status === 'running' && currentWordIndex >= words.length) {
       clearInterval(timerRef.current)
       clearInterval(snapshotRef.current)
       clearInterval(liveWpmRef.current)
@@ -157,7 +160,7 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
       }
 
       // Finish on last word (words/quote modes)
-      if ((mode === 'words' || mode === 'quote') && currentWordIndex === words.length - 1) {
+      if ((mode === 'words' || mode === 'quote' || mode === 'custom' || mode === 'code') && currentWordIndex === words.length - 1) {
         clearInterval(timerRef.current)
         clearInterval(snapshotRef.current)
         setCurrentWordIndex(prev => prev + 1)
@@ -255,11 +258,13 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
     const rawWpm = elapsed > 0 ? Math.round((totalChars / 5) / elapsed) : 0
     const accuracy = totalChars > 0 ? Math.round((correct / totalChars) * 100) : 100
 
+    // Missed = untyped chars in the current (incomplete) word when time ran out
+    // Words that were submitted via space have skipped chars already counted as errors
     let missed = 0
-    for (let i = 0; i < currentWordIndex; i++) {
-      const word = words[i]
-      const wordTyped = typed[i] || {}
-      missed += Math.max(0, word.length - Object.keys(wordTyped).length)
+    if (currentWordIndex < words.length && typed[currentWordIndex]) {
+      const word = words[currentWordIndex]
+      const wordTyped = typed[currentWordIndex] || {}
+      missed = Math.max(0, word.length - Object.keys(wordTyped).length)
     }
 
     let consistency = 100

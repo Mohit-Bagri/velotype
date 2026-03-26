@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { languages } from '../data/words'
+import { codeLanguages } from '../data/codeSnippets'
 
 const timeOpts = [15, 30, 60, 120]
 const wordOpts = [10, 25, 50, 100]
@@ -10,6 +11,7 @@ export default function ModeBar({
   punctuation, setPunctuation, numbers, setNumbers,
   language, setLanguage, quoteLength, setQuoteLength,
   difficulty, setDifficulty,
+  codeLanguage, setCodeLanguage,
   visible, disabled,
   onReset, soundEnabled, onToggleSound,
 }) {
@@ -47,6 +49,8 @@ export default function ModeBar({
         <NavPill active={mode === 'words'} disabled={disabled} onClick={() => setMode('words')}>words</NavPill>
         <NavPill active={mode === 'quote'} disabled={disabled} onClick={() => setMode('quote')}>quote</NavPill>
         <NavPill active={mode === 'zen'} disabled={disabled} onClick={() => setMode('zen')}>zen</NavPill>
+        <NavPill active={mode === 'custom'} disabled={disabled} onClick={() => setMode('custom')}>custom</NavPill>
+        <NavPill active={mode === 'code'} disabled={disabled} onClick={() => setMode('code')}>code</NavPill>
 
         {(mode === 'time' || mode === 'words' || mode === 'quote') && (
           <>
@@ -60,6 +64,15 @@ export default function ModeBar({
             ))}
             {mode === 'quote' && quoteOpts.map(q => (
               <NavPill key={q} active={q === quoteLength} disabled={disabled} onClick={() => setQuoteLength(q)}>{q}</NavPill>
+            ))}
+          </>
+        )}
+
+        {mode === 'code' && (
+          <>
+            <span className="w-px h-4 mx-1.5 shrink-0" style={{ background: 'var(--t-nav-border)' }} />
+            {codeLanguages.map(cl => (
+              <NavPill key={cl} active={cl === codeLanguage} disabled={disabled} onClick={() => setCodeLanguage(cl)}>{cl}</NavPill>
             ))}
           </>
         )}

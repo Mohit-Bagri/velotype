@@ -5,6 +5,8 @@ import Timer from './components/Timer'
 import TypingArea from './components/TypingArea'
 import Results from './components/Results'
 import ThemePicker from './components/ThemePicker'
+import CustomTextModal from './components/CustomTextModal'
+import History from './components/History'
 import { useTypingTest } from './hooks/useTypingTest'
 import { useSound } from './hooks/useSound'
 
@@ -26,6 +28,10 @@ function App() {
   const [language, setLanguage] = useState('english')
   const [quoteLength, setQuoteLength] = useState('short')
   const [difficulty, setDifficulty] = useState('medium')
+  const [codeLanguage, setCodeLanguage] = useState('javascript')
+  const [customWords, setCustomWords] = useState(null)
+  const [customTextOpen, setCustomTextOpen] = useState(false)
+  const [view, setView] = useState('test') // 'test' | 'history'
   const [soundEnabled, setSoundEnabled] = useState(() => {
     return localStorage.getItem('velotype-sound') !== 'false'
   })
@@ -43,7 +49,7 @@ function App() {
     words, currentWordIndex, currentCharIndex, typed,
     status, timeLeft, liveWpm, elapsedTime,
     handleKeyDown, resetTest, getStats, finishZen,
-  } = useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty })
+  } = useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty, codeLanguage, customWords })
 
   const { playType, playError, playSpace, playBack } = useSound(soundEnabled)
   const [stats, setStats] = useState(null)
@@ -89,7 +95,7 @@ function App() {
   }, [resetTest, finishZen, mode, status])
 
   useEffect(() => {
-    if (stats) {
+    if (stats && !stats.suspicious) {
       const h = JSON.parse(localStorage.getItem('velotype-history') || '[]')
       h.push({ wpm: stats.wpm, accuracy: stats.accuracy, duration: stats.elapsedSeconds, mode, language, date: new Date().toISOString() })
       if (h.length > 50) h.shift()
@@ -97,12 +103,54 @@ function App() {
     }
   }, [stats, mode, language])
 
+  const handleSetMode = useCallback((m) => {
+    if (m === 'custom') {
+      setCustomTextOpen(true)
+      return
+    }
+    setCustomWords(null)
+    setMode(m)
+  }, [])
+
+  const handleCustomSubmit = useCallback((words) => {
+    setCustomWords(words)
+    setMode('custom')
+  }, [])
+
+  if (view === 'history') {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <div className="fixed top-5 right-5 z-50">
+          <ThemePicker current={theme} onChange={setTheme} />
+        </div>
+        <main className="flex flex-1 flex-col items-center justify-start px-8 pt-16">
+          <History onBack={() => setView('test')} />
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Theme picker - top right */}
-      <div className="fixed top-5 right-5 z-50">
+      {/* Top right controls */}
+      <div className="fixed top-5 right-5 z-50 flex items-center gap-2">
+        <button
+          onClick={() => setView('history')}
+          className="transition-colors cursor-pointer p-2 rounded-full"
+          style={{ color: 'var(--t-sub)' }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--t-text)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
+          title="History"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+        </button>
         <ThemePicker current={theme} onChange={setTheme} />
       </div>
+
+      {/* Custom text modal */}
+      <CustomTextModal open={customTextOpen} onClose={() => setCustomTextOpen(false)} onSubmit={handleCustomSubmit} />
 
       <main className="flex flex-1 flex-col items-center justify-center px-8">
         <div className="w-full max-w-[1000px]">
@@ -118,7 +166,7 @@ function App() {
 
           {/* Navbar */}
           <ModeBar
-            mode={mode} setMode={setMode}
+            mode={mode} setMode={handleSetMode}
             duration={duration} setDuration={setDuration}
             wordCount={wordCount} setWordCount={setWordCount}
             punctuation={punctuation} setPunctuation={setPunctuation}
@@ -126,6 +174,7 @@ function App() {
             language={language} setLanguage={setLanguage}
             quoteLength={quoteLength} setQuoteLength={setQuoteLength}
             difficulty={difficulty} setDifficulty={setDifficulty}
+            codeLanguage={codeLanguage} setCodeLanguage={setCodeLanguage}
             visible={showChrome}
             disabled={status === 'running'}
             onReset={resetTest}
