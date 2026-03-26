@@ -97,7 +97,7 @@ function App() {
   useEffect(() => {
     if (stats && !stats.suspicious) {
       const h = JSON.parse(localStorage.getItem('velotype-history') || '[]')
-      h.push({ wpm: stats.wpm, accuracy: stats.accuracy, duration: stats.elapsedSeconds, mode, language, date: new Date().toISOString() })
+      h.push({ wpm: stats.wpm, rawWpm: stats.rawWpm, accuracy: stats.accuracy, consistency: stats.consistency, duration: stats.elapsedSeconds, mode, language, difficulty, date: new Date().toISOString() })
       if (h.length > 50) h.shift()
       localStorage.setItem('velotype-history', JSON.stringify(h))
     }
@@ -141,7 +141,7 @@ function App() {
           onMouseEnter={e => { e.currentTarget.style.color = 'var(--t-text)'; e.currentTarget.style.borderColor = 'var(--t-glass-border)' }}
           onMouseLeave={e => { e.currentTarget.style.color = 'var(--t-sub)'; e.currentTarget.style.borderColor = 'transparent' }}
         >
-          history
+          History
         </button>
         <ThemePicker current={theme} onChange={setTheme} />
       </div>

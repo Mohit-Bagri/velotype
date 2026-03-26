@@ -23,42 +23,52 @@ function read() {
   }
 }
 
+const PAGE_SIZE = 10
+
 export default function History({ onBack }) {
   const c = useThemeColors()
   const [history, setHistory] = useState([])
+  const [page, setPage] = useState(0)
 
   useEffect(() => {
     const h = JSON.parse(localStorage.getItem('velotype-history') || '[]')
-    setHistory(h.reverse()) // newest first
+    setHistory(h.reverse())
   }, [])
 
+  const totalPages = Math.max(1, Math.ceil(history.length / PAGE_SIZE))
+  const pageData = history.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+
   const chartData = [...history].reverse().map((h, i) => ({
-    test: i + 1,
-    wpm: h.wpm,
-    accuracy: h.accuracy,
+    test: i + 1, wpm: h.wpm, accuracy: h.accuracy,
   }))
 
   const bestWpm = history.length > 0 ? Math.max(...history.map(h => h.wpm)) : 0
   const avgWpm = history.length > 0 ? Math.round(history.reduce((a, h) => a + h.wpm, 0) / history.length) : 0
   const avgAcc = history.length > 0 ? Math.round(history.reduce((a, h) => a + h.accuracy, 0) / history.length) : 0
+  const bestAcc = history.length > 0 ? Math.max(...history.map(h => h.accuracy)) : 0
+  const totalTests = history.length
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="w-full max-w-[1000px] mx-auto"
+      className="w-full max-w-[1100px] mx-auto px-4"
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--t-text)' }}>History</h1>
-          <p className="text-[12px] mt-1" style={{ color: 'var(--t-sub)' }}>{history.length} tests recorded</p>
+          <h1 className="text-xl font-bold" style={{ color: 'var(--t-text)' }}>History</h1>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--t-sub)' }}>
+            {totalTests} test{totalTests !== 1 ? 's' : ''} recorded
+          </p>
         </div>
         <button
           onClick={onBack}
-          className="px-4 py-2 rounded-lg text-sm cursor-pointer transition-colors"
+          className="text-[12px] cursor-pointer transition-colors px-4 py-2 rounded-lg"
           style={{ color: 'var(--t-sub)', border: '1px solid var(--t-glass-border)' }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--t-text)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
         >
           Back to test
         </button>
@@ -66,26 +76,28 @@ export default function History({ onBack }) {
 
       {history.length === 0 ? (
         <div className="text-center py-20" style={{ color: 'var(--t-sub)' }}>
-          <p className="text-lg mb-2">No tests yet</p>
+          <p className="text-base mb-2">No tests yet</p>
           <p className="text-[12px]">Complete a typing test to see your history here</p>
         </div>
       ) : (
         <>
-          {/* Stats summary */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          {/* Stats row */}
+          <div className="grid grid-cols-5 gap-3 mb-6">
             <StatBox label="Best WPM" value={bestWpm} c={c} />
-            <StatBox label="Average WPM" value={avgWpm} c={c} />
-            <StatBox label="Average Accuracy" value={`${avgAcc}%`} c={c} />
+            <StatBox label="Avg WPM" value={avgWpm} c={c} />
+            <StatBox label="Best Acc" value={`${bestAcc}%`} c={c} />
+            <StatBox label="Avg Acc" value={`${avgAcc}%`} c={c} />
+            <StatBox label="Tests" value={totalTests} c={c} />
           </div>
 
           {/* Chart */}
-          <div className="mb-8 rounded-xl p-6" style={{ background: 'var(--t-glass)', border: '1px solid var(--t-glass-border)' }}>
-            <div className="text-[10px] uppercase tracking-[0.2em] mb-4" style={{ color: c.sub }}>Performance Over Time</div>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={chartData} margin={{ top: 5, right: 20, left: 5, bottom: 5 }}>
+          <div className="mb-6 rounded-xl p-5" style={{ background: 'var(--t-glass)', border: '1px solid var(--t-glass-border)' }}>
+            <div className="text-[9px] uppercase tracking-[0.2em] mb-3" style={{ color: c.sub }}>Performance Over Time</div>
+            <ResponsiveContainer width="100%" height={180}>
+              <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid stroke={c.grid} vertical={false} />
-                <XAxis dataKey="test" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} />
-                <YAxis stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} width={35} />
+                <XAxis dataKey="test" stroke="transparent" tick={{ fontSize: 10, fill: c.sub }} tickLine={false} />
+                <YAxis stroke="transparent" tick={{ fontSize: 10, fill: c.sub }} tickLine={false} width={30} />
                 <Tooltip
                   contentStyle={{
                     background: c.tooltipBg, border: `1px solid ${c.tooltipBorder}`,
@@ -93,27 +105,37 @@ export default function History({ onBack }) {
                   }}
                   labelFormatter={v => `Test #${v}`}
                 />
-                <Line type="monotone" dataKey="wpm" stroke={c.accent} strokeWidth={2} dot={{ r: 3, fill: c.accent }} name="WPM" />
+                <Line type="monotone" dataKey="wpm" stroke={c.accent} strokeWidth={2} dot={{ r: 2.5, fill: c.accent }} name="WPM" />
                 <Line type="monotone" dataKey="accuracy" stroke={c.correct} strokeWidth={1.5} strokeDasharray="4 4" dot={false} name="Accuracy %" />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Recent tests table */}
-          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--t-glass-border)' }}>
-            <div className="grid grid-cols-5 px-6 py-3" style={{ background: 'var(--t-glass)' }}>
-              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>wpm</span>
-              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>accuracy</span>
-              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>mode</span>
-              <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: c.sub }}>language</span>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-right" style={{ color: c.sub }}>date</span>
+          {/* Table */}
+          <div className="rounded-xl overflow-hidden mb-4" style={{ border: '1px solid var(--t-glass-border)' }}>
+            {/* Header */}
+            <div className="grid grid-cols-8 px-5 py-2.5 text-[9px] uppercase tracking-[0.15em]" style={{ background: 'var(--t-glass)', color: c.sub }}>
+              <span>wpm</span>
+              <span>raw</span>
+              <span>accuracy</span>
+              <span>consistency</span>
+              <span>mode</span>
+              <span>language</span>
+              <span>duration</span>
+              <span className="text-right">date</span>
             </div>
-            {history.slice(0, 25).map((h, i) => (
-              <div key={i} className="grid grid-cols-5 px-6 py-2.5 text-[13px]" style={{ borderTop: `1px solid ${c.divider}` }}>
+            {/* Rows */}
+            {pageData.map((h, i) => (
+              <div key={i} className="grid grid-cols-8 px-5 py-2 text-[12px]" style={{ borderTop: `1px solid ${c.divider}` }}>
                 <span className="text-accent font-semibold tabular-nums">{h.wpm}</span>
-                <span className="tabular-nums" style={{ color: h.accuracy >= 95 ? c.correct : h.accuracy >= 80 ? c.sub : c.err }}>{h.accuracy}%</span>
+                <span className="tabular-nums" style={{ color: c.sub }}>{h.rawWpm || '-'}</span>
+                <span className="tabular-nums" style={{ color: h.accuracy >= 95 ? c.correct : h.accuracy >= 80 ? c.text : c.err }}>
+                  {h.accuracy}%
+                </span>
+                <span className="tabular-nums" style={{ color: c.sub }}>{h.consistency != null ? `${h.consistency}%` : '-'}</span>
                 <span style={{ color: c.sub }}>{h.mode}</span>
                 <span style={{ color: c.sub }}>{h.language}</span>
+                <span className="tabular-nums" style={{ color: c.sub }}>{h.duration}s</span>
                 <span className="text-right tabular-nums" style={{ color: c.sub }}>
                   {new Date(h.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                 </span>
@@ -121,12 +143,39 @@ export default function History({ onBack }) {
             ))}
           </div>
 
-          {/* Clear history */}
-          <div className="text-center mt-6">
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="text-[12px] px-3 py-1.5 rounded-lg cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                style={{ color: 'var(--t-sub)', border: '1px solid var(--t-glass-border)' }}
+              >
+                Prev
+              </button>
+              <span className="text-[11px] tabular-nums" style={{ color: 'var(--t-sub)' }}>
+                {page + 1} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                className="text-[12px] px-3 py-1.5 rounded-lg cursor-pointer transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                style={{ color: 'var(--t-sub)', border: '1px solid var(--t-glass-border)' }}
+              >
+                Next
+              </button>
+            </div>
+          )}
+
+          {/* Clear */}
+          <div className="text-center py-4">
             <button
-              onClick={() => { localStorage.removeItem('velotype-history'); setHistory([]) }}
+              onClick={() => { localStorage.removeItem('velotype-history'); setHistory([]); setPage(0) }}
               className="text-[11px] cursor-pointer transition-colors"
               style={{ color: 'var(--t-sub)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--t-error, var(--t-err))'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
             >
               Clear history
             </button>
@@ -139,9 +188,9 @@ export default function History({ onBack }) {
 
 function StatBox({ label, value, c }) {
   return (
-    <div className="rounded-xl py-5 text-center" style={{ background: 'var(--t-glass)', border: '1px solid var(--t-glass-border)' }}>
-      <div className="text-[10px] uppercase tracking-[0.2em] mb-2" style={{ color: c.sub }}>{label}</div>
-      <div className="text-2xl font-bold tabular-nums text-accent">{value}</div>
+    <div className="rounded-xl py-4 text-center" style={{ background: 'var(--t-glass)', border: '1px solid var(--t-glass-border)' }}>
+      <div className="text-[9px] uppercase tracking-[0.15em] mb-1.5" style={{ color: c.sub }}>{label}</div>
+      <div className="text-xl font-bold tabular-nums text-accent">{value}</div>
     </div>
   )
 }

@@ -30,7 +30,7 @@ export default function CustomTextModal({ open, onClose, onSubmit }) {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="w-full max-w-[560px] rounded-2xl overflow-hidden"
+            className="w-full max-w-[640px] rounded-2xl overflow-hidden"
             style={{
               background: 'var(--t-bg)',
               border: '1px solid var(--t-nav-border)',
