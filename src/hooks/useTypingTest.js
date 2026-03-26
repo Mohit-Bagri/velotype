@@ -159,10 +159,11 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
         totalTypedRef.current += skipped
       }
 
-      // Finish on last word (words/quote modes)
+      // Finish on last word (words/quote/custom/code modes)
       if ((mode === 'words' || mode === 'quote' || mode === 'custom' || mode === 'code') && currentWordIndex === words.length - 1) {
         clearInterval(timerRef.current)
         clearInterval(snapshotRef.current)
+        clearInterval(liveWpmRef.current)
         setCurrentWordIndex(prev => prev + 1)
         setStatus('finished')
         return
@@ -258,13 +259,13 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
     const rawWpm = elapsed > 0 ? Math.round((totalChars / 5) / elapsed) : 0
     const accuracy = totalChars > 0 ? Math.round((correct / totalChars) * 100) : 100
 
-    // Missed = untyped chars in the current (incomplete) word when time ran out
-    // Words that were submitted via space have skipped chars already counted as errors
+    // Missed = untyped character positions across all attempted words
     let missed = 0
-    if (currentWordIndex < words.length && typed[currentWordIndex]) {
-      const word = words[currentWordIndex]
-      const wordTyped = typed[currentWordIndex] || {}
-      missed = Math.max(0, word.length - Object.keys(wordTyped).length)
+    for (let i = 0; i <= Math.min(currentWordIndex, words.length - 1); i++) {
+      const word = words[i]
+      const wordTyped = typed[i] || {}
+      const typedCount = Object.keys(wordTyped).filter(k => Number(k) < word.length).length
+      missed += Math.max(0, word.length - typedCount)
     }
 
     let consistency = 100
