@@ -72,8 +72,10 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
       // Position at the start of the current word
       el = wordEls.current[currentWordIndex]
       if (el) {
+        // Use the first char element if available for precise Y
+        const firstChar = charEls.current[`${currentWordIndex}-0`]
         x = el.offsetLeft
-        y = el.offsetTop
+        y = firstChar ? firstChar.offsetTop : el.offsetTop
       }
     } else {
       // Position after the last typed character
@@ -193,7 +195,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                 borderRadius: 2,
                 pointerEvents: 'none',
                 zIndex: 2,
-                transform: `translate3d(${caretPos.x}px, ${caretPos.y + LINE_HEIGHT * 0.15}px, 0)`,
+                transform: `translate3d(${caretPos.x}px, ${caretPos.y + 9}px, 0)`,
                 transition: skipTransitionRef.current ? 'none' : CARET_TRANSITION,
                 willChange: 'transform',
               }}

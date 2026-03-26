@@ -94,8 +94,12 @@ export default function Results({ stats, duration, mode, language, punctuation, 
 
         {/* Chart */}
         <div className="flex-1 min-w-0">
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={data} margin={{ top: 5, right: 45, left: 15, bottom: 5 }}>
+          <div className="flex justify-between px-1 mb-1">
+            <span className="text-[9px] uppercase tracking-[0.15em]" style={{ color: c.sub }}>Words per Minute</span>
+            <span className="text-[9px] uppercase tracking-[0.15em]" style={{ color: c.sub }}>Errors</span>
+          </div>
+          <ResponsiveContainer width="100%" height={210}>
+            <AreaChart data={data} margin={{ top: 5, right: 40, left: 10, bottom: 5 }}>
               <defs>
                 <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={c.accent} stopOpacity={0.15} />
@@ -104,8 +108,8 @@ export default function Results({ stats, duration, mode, language, punctuation, 
               </defs>
               <CartesianGrid stroke={c.grid} vertical={false} />
               <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} />
-              <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={40} domain={[0, yMax]} allowDecimals={false} label={{ value: 'wpm', position: 'top', offset: 8, style: { fontSize: 9, fill: c.sub, textTransform: 'uppercase', letterSpacing: '0.1em' } }} />
-              <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={35} allowDecimals={false} label={{ value: 'errors', position: 'top', offset: 8, style: { fontSize: 9, fill: c.sub, textTransform: 'uppercase', letterSpacing: '0.1em' } }} />
+              <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={35} domain={[0, yMax]} allowDecimals={false} />
+              <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={30} allowDecimals={false} />
               <Tooltip content={<ChartTooltip colors={c} />} cursor={{ stroke: c.dim, strokeWidth: 1 }} />
               <Area yAxisId="w" type="monotone" dataKey="wpm" name="WPM" stroke={c.accent} strokeWidth={2} fill="url(#wg)" dot={false} activeDot={{ r: 4, fill: c.accent, stroke: c.bgSurface, strokeWidth: 2 }} />
               <Line yAxisId="w" type="monotone" dataKey="raw" name="Raw" stroke={c.raw} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
