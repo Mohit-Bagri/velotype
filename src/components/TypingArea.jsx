@@ -193,7 +193,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                 borderRadius: 2,
                 pointerEvents: 'none',
                 zIndex: 2,
-                transform: `translate3d(${caretPos.x}px, ${caretPos.y + LINE_HEIGHT * 0.18}px, 0)`,
+                transform: `translate3d(${caretPos.x}px, ${caretPos.y + LINE_HEIGHT * 0.15}px, 0)`,
                 transition: skipTransitionRef.current ? 'none' : CARET_TRANSITION,
                 willChange: 'transform',
               }}

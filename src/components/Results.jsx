@@ -92,43 +92,29 @@ export default function Results({ stats, duration, mode, language, punctuation, 
           </div>
         </div>
 
-        {/* Chart with vertical axis labels */}
-        <div className="flex-1 min-w-0 flex">
-          <div className="flex items-center shrink-0" style={{ width: 18 }}>
-            <span className="text-[9px] uppercase tracking-[0.15em] whitespace-nowrap" style={{ color: c.sub, transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
-              Words per Minute
-            </span>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={data} margin={{ top: 5, right: 35, left: 5, bottom: 5 }}>
-                <defs>
-                  <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={c.accent} stopOpacity={0.15} />
-                    <stop offset="100%" stopColor={c.accent} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke={c.grid} vertical={false} />
-                <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} />
-                <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={35} domain={[0, yMax]} allowDecimals={false} />
-                <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={30} allowDecimals={false} />
-                <Tooltip content={<ChartTooltip colors={c} />} cursor={{ stroke: c.dim, strokeWidth: 1 }} />
-                <Area yAxisId="w" type="monotone" dataKey="wpm" name="WPM" stroke={c.accent} strokeWidth={2} fill="url(#wg)" dot={false} activeDot={{ r: 4, fill: c.accent, stroke: c.bgSurface, strokeWidth: 2 }} />
-                <Line yAxisId="w" type="monotone" dataKey="raw" name="Raw" stroke={c.raw} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-                <Line yAxisId="e" type="stepAfter" dataKey="err" name="Errors" stroke="transparent" dot={p => {
-                  if (!p.payload || p.payload.err <= 0) return null
-                  return <svg key={p.index} x={p.cx-5} y={p.cy-6} width={10} height={12}><text x={5} y={10} textAnchor="middle" fill={c.err} fontSize={11} fontWeight="bold">x</text></svg>
-                }} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="flex items-center shrink-0" style={{ width: 18 }}>
-            <span className="text-[9px] uppercase tracking-[0.15em] whitespace-nowrap" style={{ color: c.sub, transform: 'rotate(90deg)', transformOrigin: 'center' }}>
-              Errors
-            </span>
-          </div>
+        {/* Chart */}
+        <div className="flex-1 min-w-0">
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={data} margin={{ top: 5, right: 45, left: 15, bottom: 5 }}>
+              <defs>
+                <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={c.accent} stopOpacity={0.15} />
+                  <stop offset="100%" stopColor={c.accent} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={c.grid} vertical={false} />
+              <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} />
+              <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={40} domain={[0, yMax]} allowDecimals={false} label={{ value: 'wpm', position: 'top', offset: 8, style: { fontSize: 9, fill: c.sub, textTransform: 'uppercase', letterSpacing: '0.1em' } }} />
+              <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={35} allowDecimals={false} label={{ value: 'errors', position: 'top', offset: 8, style: { fontSize: 9, fill: c.sub, textTransform: 'uppercase', letterSpacing: '0.1em' } }} />
+              <Tooltip content={<ChartTooltip colors={c} />} cursor={{ stroke: c.dim, strokeWidth: 1 }} />
+              <Area yAxisId="w" type="monotone" dataKey="wpm" name="WPM" stroke={c.accent} strokeWidth={2} fill="url(#wg)" dot={false} activeDot={{ r: 4, fill: c.accent, stroke: c.bgSurface, strokeWidth: 2 }} />
+              <Line yAxisId="w" type="monotone" dataKey="raw" name="Raw" stroke={c.raw} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+              <Line yAxisId="e" type="stepAfter" dataKey="err" name="Errors" stroke="transparent" dot={p => {
+                if (!p.payload || p.payload.err <= 0) return null
+                return <svg key={p.index} x={p.cx-5} y={p.cy-6} width={10} height={12}><text x={5} y={10} textAnchor="middle" fill={c.err} fontSize={11} fontWeight="bold">x</text></svg>
+              }} />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
@@ -148,13 +134,24 @@ export default function Results({ stats, duration, mode, language, punctuation, 
           <span className="text-text">{stats.rawWpm}</span>
         </DetailBlock>
         <DetailBlock label="characters" center subColor={c.sub}>
-          <span style={{ color: c.correct }}>{stats.correct}</span>
-          <span style={{ color: c.dim }}>/</span>
-          <span style={{ color: c.err }}>{stats.incorrect}</span>
-          <span style={{ color: c.dim }}>/</span>
-          <span style={{ color: c.sub }}>{stats.missed}</span>
-          <span style={{ color: c.dim }}>/</span>
-          <span style={{ color: c.sub }}>{stats.totalChars}</span>
+          <div className="flex items-center justify-center gap-1">
+            <span style={{ color: c.correct }}>{stats.correct}</span>
+            <span style={{ color: c.dim }}>/</span>
+            <span style={{ color: c.err }}>{stats.incorrect}</span>
+            <span style={{ color: c.dim }}>/</span>
+            <span style={{ color: c.sub }}>{stats.missed}</span>
+            <span style={{ color: c.dim }}>/</span>
+            <span style={{ color: c.sub }}>{stats.totalChars}</span>
+          </div>
+          <div className="flex items-center justify-center gap-1 text-[9px] mt-1" style={{ color: c.sub }}>
+            <span>correct</span>
+            <span>/</span>
+            <span>incorrect</span>
+            <span>/</span>
+            <span>missed</span>
+            <span>/</span>
+            <span>total</span>
+          </div>
         </DetailBlock>
         <DetailBlock label="consistency" center subColor={c.sub}>
           <span className="text-text">{stats.consistency}%</span>
