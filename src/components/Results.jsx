@@ -144,7 +144,8 @@ export default function Results({ stats, duration, mode, language, punctuation, 
             {mode}{mode === 'time' ? ` ${duration}s` : mode === 'words' ? ` ${wordCount}` : ''}
           </div>
           <div className="text-[13px] leading-relaxed" style={{ color: c.sub }}>
-            {language} {difficulty}
+            {language}
+            {mode !== 'quote' && ` ${difficulty}`}
             {punctuation && ' punctuation'}
             {numbers && ' numbers'}
           </div>

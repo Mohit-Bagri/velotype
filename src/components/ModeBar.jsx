@@ -22,7 +22,7 @@ export default function ModeBar({
     >
       {/* Capsule navbar */}
       <nav
-        className="inline-flex items-center gap-1.5 rounded-full px-5 py-3 transition-all duration-500 ease-out flex-wrap justify-center max-w-full"
+        className="inline-flex items-center gap-2 rounded-full px-7 py-3 transition-all duration-500 ease-out flex-wrap justify-center"
         style={{
           background: 'var(--t-nav-bg)',
           border: '1px solid var(--t-nav-border)',
