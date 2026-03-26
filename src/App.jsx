@@ -40,7 +40,8 @@ function App() {
 
   const {
     words, currentWordIndex, currentCharIndex, typed,
-    status, timeLeft, handleKeyDown, resetTest, getStats,
+    status, timeLeft, liveWpm, elapsedTime,
+    handleKeyDown, resetTest, getStats, finishZen,
   } = useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength })
 
   const { playType, playError, playSpace, playBack } = useSound(soundEnabled)
@@ -76,11 +77,15 @@ function App() {
     const handler = (e) => {
       if (e.key === 'Tab') { e.preventDefault(); tabPressedRef.current = true; setTimeout(() => { tabPressedRef.current = false }, 500); return }
       if (e.key === 'Enter' && tabPressedRef.current) { e.preventDefault(); tabPressedRef.current = false; resetTest(); return }
-      if (e.key === 'Escape') { e.preventDefault(); resetTest() }
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        if (mode === 'zen' && status === 'running') { finishZen(); return }
+        resetTest()
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [resetTest])
+  }, [resetTest, finishZen, mode, status])
 
   useEffect(() => {
     if (stats) {
@@ -129,7 +134,7 @@ function App() {
           {/* Content */}
           {status !== 'finished' ? (
             <motion.div key="typing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
-              <Timer timeLeft={timeLeft} status={status} mode={mode} />
+              <Timer timeLeft={timeLeft} status={status} mode={mode} liveWpm={liveWpm} elapsedTime={elapsedTime} />
               <TypingArea
                 words={words}
                 currentWordIndex={currentWordIndex}

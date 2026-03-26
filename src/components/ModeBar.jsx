@@ -45,18 +45,23 @@ export default function ModeBar({
         <NavPill active={mode === 'time'} disabled={disabled} onClick={() => setMode('time')}>time</NavPill>
         <NavPill active={mode === 'words'} disabled={disabled} onClick={() => setMode('words')}>words</NavPill>
         <NavPill active={mode === 'quote'} disabled={disabled} onClick={() => setMode('quote')}>quote</NavPill>
+        <NavPill active={mode === 'zen'} disabled={disabled} onClick={() => setMode('zen')}>zen</NavPill>
 
-        <span className="w-px h-4 mx-1.5 shrink-0" style={{ background: 'var(--t-nav-border)' }} />
+        {(mode === 'time' || mode === 'words' || mode === 'quote') && (
+          <>
+            <span className="w-px h-4 mx-1.5 shrink-0" style={{ background: 'var(--t-nav-border)' }} />
 
-        {mode === 'time' && timeOpts.map(t => (
-          <NavPill key={t} active={t === duration} disabled={disabled} onClick={() => setDuration(t)}>{t}</NavPill>
-        ))}
-        {mode === 'words' && wordOpts.map(w => (
-          <NavPill key={w} active={w === wordCount} disabled={disabled} onClick={() => setWordCount(w)}>{w}</NavPill>
-        ))}
-        {mode === 'quote' && quoteOpts.map(q => (
-          <NavPill key={q} active={q === quoteLength} disabled={disabled} onClick={() => setQuoteLength(q)}>{q}</NavPill>
-        ))}
+            {mode === 'time' && timeOpts.map(t => (
+              <NavPill key={t} active={t === duration} disabled={disabled} onClick={() => setDuration(t)}>{t}</NavPill>
+            ))}
+            {mode === 'words' && wordOpts.map(w => (
+              <NavPill key={w} active={w === wordCount} disabled={disabled} onClick={() => setWordCount(w)}>{w}</NavPill>
+            ))}
+            {mode === 'quote' && quoteOpts.map(q => (
+              <NavPill key={q} active={q === quoteLength} disabled={disabled} onClick={() => setQuoteLength(q)}>{q}</NavPill>
+            ))}
+          </>
+        )}
 
         <span className="w-px h-4 mx-1.5 shrink-0" style={{ background: 'var(--t-nav-border)' }} />
 

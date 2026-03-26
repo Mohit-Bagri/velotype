@@ -34,6 +34,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
   const [scrollY, setScrollY] = useState(0)
   const inputRef = useRef(null)
   const [focused, setFocused] = useState(true)
+  const [capsLock, setCapsLock] = useState(false)
 
   // Smooth caret state
   const [caretPos, setCaretPos] = useState({ x: 0, y: 0 })
@@ -130,6 +131,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
   }, [status, words, focus])
 
   const onInput = useCallback((e) => {
+    setCapsLock(e.getModifierState('CapsLock'))
     if (e.key === 'Tab' || e.key === 'Escape' || e.key === 'Enter') return
     e.preventDefault()
     e.stopPropagation()
@@ -166,6 +168,16 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
           cursor: 'text',
         }}
       />
+
+      {/* Caps lock warning */}
+      {capsLock && focused && status !== 'finished' && (
+        <div className="flex items-center justify-center gap-2 mb-2 py-1.5 px-4 rounded-full text-[11px] font-medium mx-auto w-fit" style={{ background: 'var(--t-accent-soft)', color: 'var(--t-warn, var(--t-accent))' }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+          Caps Lock is on
+        </div>
+      )}
 
       <div className="overflow-hidden relative" style={{ height: VISIBLE_LINES * LINE_HEIGHT }}>
         {!focused && status !== 'finished' && (

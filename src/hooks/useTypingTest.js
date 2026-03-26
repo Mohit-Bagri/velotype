@@ -7,6 +7,7 @@ const SNAPSHOT_INTERVAL = 1000
 function getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength }) {
   if (mode === 'quote') return getQuote(quoteLength)
   if (mode === 'words') return generateWords(wordCount, { punctuation, numbers, language })
+  if (mode === 'zen') return generateWords(500, { punctuation, numbers, language })
   return generateWords(250, { punctuation, numbers, language }) // time mode
 }
 
@@ -23,9 +24,13 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
   const [rawWpmHistory, setRawWpmHistory] = useState([])
   const [errorHistory, setErrorHistory] = useState([])
 
+  const [liveWpm, setLiveWpm] = useState(0)
+  const [elapsedTime, setElapsedTime] = useState(0)
+
   const startTimeRef = useRef(null)
   const timerRef = useRef(null)
   const snapshotRef = useRef(null)
+  const liveWpmRef = useRef(null)
   const totalCorrectRef = useRef(0)
   const totalTypedRef = useRef(0)
   const totalErrorsRef = useRef(0)
@@ -34,12 +39,15 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
   const resetTest = useCallback(() => {
     clearInterval(timerRef.current)
     clearInterval(snapshotRef.current)
+    clearInterval(liveWpmRef.current)
     setWords(getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength }))
     setCurrentWordIndex(0)
     setCurrentCharIndex(0)
     setTyped({})
     setStatus('idle')
     setTimeLeft(duration)
+    setLiveWpm(0)
+    setElapsedTime(0)
     setWpmHistory([])
     setRawWpmHistory([])
     setErrorHistory([])
@@ -74,6 +82,19 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
       }, 1000)
     }
 
+    // Live WPM + elapsed time update (every 500ms for responsiveness)
+    liveWpmRef.current = setInterval(() => {
+      const elMs = Date.now() - startTimeRef.current
+      const elMin = elMs / 60000
+      if (elMin > 0) {
+        setLiveWpm(Math.round((totalCorrectRef.current / 5) / elMin))
+      }
+      // Zen mode: count up elapsed time
+      if (mode === 'zen') {
+        setElapsedTime(Math.round(elMs / 1000))
+      }
+    }, 500)
+
     snapshotRef.current = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 60000
       if (elapsed <= 0) return
@@ -92,9 +113,18 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
     if ((mode === 'words' || mode === 'quote') && status === 'running' && currentWordIndex >= words.length) {
       clearInterval(timerRef.current)
       clearInterval(snapshotRef.current)
+      clearInterval(liveWpmRef.current)
       setStatus('finished')
     }
   }, [mode, status, currentWordIndex, words.length])
+
+  // Zen mode: generate more words when approaching the end
+  useEffect(() => {
+    if (mode === 'zen' && status === 'running' && currentWordIndex >= words.length - 20) {
+      const more = generateWords(200, { punctuation, numbers, language })
+      setWords(prev => [...prev, ...more])
+    }
+  }, [mode, status, currentWordIndex, words.length, punctuation, numbers, language])
 
   const handleKeyDown = useCallback((e) => {
     if (status === 'finished') return
@@ -187,8 +217,16 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
     // No auto-finish on last char — user must press space to submit the last word
   }, [status, words, currentWordIndex, currentCharIndex, typed, startTest, mode])
 
+  const finishZen = useCallback(() => {
+    if (mode !== 'zen' || status !== 'running') return
+    clearInterval(timerRef.current)
+    clearInterval(snapshotRef.current)
+    clearInterval(liveWpmRef.current)
+    setStatus('finished')
+  }, [mode, status])
+
   const getElapsedSeconds = useCallback(() => {
-    if (!startTimeRef.current) return duration
+    if (!startTimeRef.current) return mode === 'time' ? duration : 0
     if (mode === 'time') return duration
     return Math.max(1, Math.round((Date.now() - startTimeRef.current) / 1000))
   }, [mode, duration])
@@ -229,6 +267,7 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
 
   return {
     words, currentWordIndex, currentCharIndex, typed,
-    status, timeLeft, handleKeyDown, resetTest, getStats,
+    status, timeLeft, liveWpm, elapsedTime,
+    handleKeyDown, resetTest, getStats, finishZen,
   }
 }
