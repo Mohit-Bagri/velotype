@@ -57,13 +57,13 @@ All processing happens locally in the browser -- no accounts, no servers, no tra
 | **12 Languages** | English, Spanish, French, German, Portuguese, Italian, Hindi, Japanese, Korean, Arabic, Russian and Chinese |
 | **16 Code Languages** | JavaScript, Python, TypeScript, Go, Rust, Java, C#, C++, Ruby, PHP, Swift, Kotlin, SQL, HTML, CSS and Bash |
 | **9 Themes** | Dark, Light, Serika Dark, Serika Light, Nord, Dracula, Monokai, Ocean and Botanical |
-| **3,400+ Words** | Expanded word pools across all languages |
+| **4,400+ Words** | Expanded word pools across all 12 languages |
 | **Word Difficulty** | Easy (common short words), Medium (full pool) and Hard (6+ character words) |
 | **Smooth Caret** | Animated caret that glides between characters |
 | **Live WPM** | Real-time words-per-minute counter while typing |
 | **Performance Chart** | Post-test graph with WPM curve, raw WPM and error markers |
 | **Detailed Stats** | WPM, accuracy, raw WPM, consistency, character breakdown |
-| **History Page** | Track WPM and accuracy over time with charts and pagination |
+| **History Page** | Track up to 200 tests with WPM/accuracy charts and pagination |
 | **Punctuation & Numbers** | Toggle punctuation marks and random numbers |
 | **Sound Effects** | Mechanical keyboard sounds for typing, errors, space and backspace |
 | **Caps Lock Warning** | Instant detection with visual warning |
@@ -137,8 +137,8 @@ velotype/
 │   │   └── History.jsx            # History page with charts + table
 │   ├── data/
 │   │   ├── words.js               # 3,400+ words across 12 languages
-│   │   ├── quotes.js              # 35 curated quotes (short/medium/long)
-│   │   └── codeSnippets.js        # Code snippets for 16 languages
+│   │   ├── quotes.js              # 100 curated quotes (short/medium/long)
+│   │   └── codeSnippets.js        # 165+ code snippets for 16 languages
 │   ├── hooks/
 │   │   ├── useTypingTest.js       # Core typing engine (state, WPM, anti-cheat)
 │   │   └── useSound.js            # Keyboard sound effects
@@ -239,28 +239,38 @@ Click **History** in the top-right to view:
 
 All languages support three difficulty levels: Easy (top 200 common words), Medium (full pool) and Hard (6+ character words).
 
+### Quotes
+
+| Length | Count | Example Authors |
+|--------|-------|-----------------|
+| Short | 55 | Einstein, Shakespeare, Twain, Tolkien, Socrates, Seneca, Lao Tzu |
+| Medium | 30 | Roosevelt, Emerson, Thoreau, Mandela, Aurelius, Frankl |
+| Long | 15 | MLK, Roosevelt, Thoreau, Camus, Williamson |
+| **Total** | **100** | |
+
 ---
 
 ## Code Languages
 
 | Language | Snippets |
 |----------|----------|
-| JavaScript | 12 |
-| Python | 11 |
-| TypeScript | 9 |
-| Go | 10 |
-| Rust | 10 |
-| Java | 8 |
-| C# | 8 |
-| C++ | 8 |
-| Ruby | 8 |
-| PHP | 8 |
-| Swift | 8 |
-| Kotlin | 8 |
-| SQL | 8 |
-| HTML | 7 |
-| CSS | 7 |
-| Bash | 8 |
+| JavaScript | 20 |
+| Python | 20 |
+| TypeScript | 20 |
+| Go | 20 |
+| Rust | 20 |
+| Java | 20 |
+| C# | 20 |
+| C++ | 20 |
+| Ruby | 20 |
+| PHP | 20 |
+| Swift | 20 |
+| Kotlin | 20 |
+| SQL | 20 |
+| HTML | 20 |
+| CSS | 20 |
+| Bash | 20 |
+| **Total** | **165+** |
 
 ---
 
