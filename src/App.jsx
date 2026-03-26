@@ -7,11 +7,12 @@ import Results from './components/Results'
 import { useTypingTest } from './hooks/useTypingTest'
 import { useSound } from './hooks/useSound'
 
-const ASCII_LOGO = `__     _______ _     ___ _______   ______  _____
-\\ \\   / / ____| |   / _ \\_   _\\ \\ / /  _ \\| ____|
- \\ \\ / /|  _| | |  | | | || |  \\ V /| |_) |  _|
-  \\ V / | |___| |__| |_| || |   | | |  __/| |___
-   \\_/  |_____|_____\\___/ |_|   |_| |_|   |_____|`
+const LOGO = `
+ _   _ _____ _     ___ _____ _   _ ____  _____
+| | | | ____| |   / _ \\_   _\\ \\ / |  _ \\| ____|
+| | | |  _| | |  | | | || |  \\   /| |_) |  _|
+| \\_/ | |___| |__| |_| || |   | | |  __/| |___
+ \\___/|_____|____|\\___/ |_|   |_| |_|   |_____|`.trimStart()
 
 function App() {
   const [mode, setMode] = useState('time')
@@ -22,12 +23,7 @@ function App() {
   const [language, setLanguage] = useState('english')
   const [quoteLength, setQuoteLength] = useState('short')
   const [soundEnabled, setSoundEnabled] = useState(() => {
-    const saved = localStorage.getItem('velotype-sound')
-    return saved !== null ? saved === 'true' : true
-  })
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('velotype-theme')
-    return saved || 'dark'
+    return localStorage.getItem('velotype-sound') !== 'false'
   })
 
   const {
@@ -44,15 +40,6 @@ function App() {
     if (status === 'finished') setStats(getStats())
     else setStats(null)
   }, [status, getStats])
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    localStorage.setItem('velotype-theme', theme)
-  }, [theme])
-
-  const toggleTheme = useCallback(() => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
-  }, [])
 
   const toggleSound = useCallback(() => {
     setSoundEnabled(prev => {
@@ -97,15 +84,13 @@ function App() {
       <main className="flex flex-1 flex-col items-center justify-center px-8">
         <div className="w-full max-w-[1000px]">
 
-          {/* ASCII logo - centered, right above navbar */}
+          {/* Logo */}
           <motion.div
             animate={{ opacity: showChrome ? 1 : 0 }}
             transition={{ duration: 0.25 }}
-            className="flex justify-center mb-8"
+            className="flex justify-center mb-6"
           >
-            <pre className="ascii-glow text-center select-none" style={{ fontSize: '0.65rem', lineHeight: 1.35 }}>
-              {ASCII_LOGO}
-            </pre>
+            <pre className="ascii-glow text-center select-none">{LOGO}</pre>
           </motion.div>
 
           {/* Navbar */}
@@ -122,8 +107,6 @@ function App() {
             onReset={resetTest}
             soundEnabled={soundEnabled}
             onToggleSound={toggleSound}
-            theme={theme}
-            onToggleTheme={toggleTheme}
           />
 
           {/* Content */}

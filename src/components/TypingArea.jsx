@@ -3,19 +3,16 @@ import { useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react
 const LINE_HEIGHT = 48
 const VISIBLE_LINES = 3
 
-const getColors = () => {
-  const isLight = document.documentElement.dataset.theme === 'light'
-  return {
-    untyped: isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.18)',
-    correct: isLight ? '#1a1a2e' : '#d1d0e0',
-    error: isLight ? '#dc2626' : '#f87171',
-    extra: isLight ? 'rgba(220,38,38,0.35)' : 'rgba(248,113,113,0.35)',
-    caret: isLight ? '#7c3aed' : '#8b5cf6',
-  }
+const COL = {
+  untyped: 'rgba(255,255,255,0.18)',
+  correct: '#d1d0e0',
+  error: '#f87171',
+  extra: 'rgba(248,113,113,0.35)',
+  caret: '#8b5cf6',
 }
 
 export default function TypingArea({ words, currentWordIndex, currentCharIndex, typed, status, onKeyDown }) {
-  const colors = getColors()
+  const colors = COL
   const containerRef = useRef(null)
   const wordsRef = useRef(null)
   const wordEls = useRef({})
