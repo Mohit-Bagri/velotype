@@ -4,14 +4,14 @@ import { getQuote } from '../data/quotes'
 
 const SNAPSHOT_INTERVAL = 1000
 
-function getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength }) {
+function getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength, difficulty }) {
   if (mode === 'quote') return getQuote(quoteLength)
-  if (mode === 'words') return generateWords(wordCount, { punctuation, numbers, language })
-  if (mode === 'zen') return generateWords(500, { punctuation, numbers, language })
-  return generateWords(250, { punctuation, numbers, language }) // time mode
+  if (mode === 'words') return generateWords(wordCount, { punctuation, numbers, language, difficulty })
+  if (mode === 'zen') return generateWords(500, { punctuation, numbers, language, difficulty })
+  return generateWords(250, { punctuation, numbers, language, difficulty }) // time mode
 }
 
-export function useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength }) {
+export function useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty }) {
   const [words, setWords] = useState(() =>
     getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength })
   )
@@ -35,12 +35,14 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
   const totalTypedRef = useRef(0)
   const totalErrorsRef = useRef(0)
   const prevSnapshotErrorsRef = useRef(0)
+  const keystrokeTimesRef = useRef([])
+  const suspiciousRef = useRef(false)
 
   const resetTest = useCallback(() => {
     clearInterval(timerRef.current)
     clearInterval(snapshotRef.current)
     clearInterval(liveWpmRef.current)
-    setWords(getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength }))
+    setWords(getWordList({ mode, wordCount, punctuation, numbers, language, quoteLength, difficulty }))
     setCurrentWordIndex(0)
     setCurrentCharIndex(0)
     setTyped({})
@@ -56,11 +58,13 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
     totalTypedRef.current = 0
     totalErrorsRef.current = 0
     prevSnapshotErrorsRef.current = 0
-  }, [mode, duration, wordCount, punctuation, numbers, language, quoteLength])
+    keystrokeTimesRef.current = []
+    suspiciousRef.current = false
+  }, [mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty])
 
   useEffect(() => {
     resetTest()
-  }, [mode, duration, wordCount, punctuation, numbers, language, quoteLength, resetTest])
+  }, [mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty, resetTest])
 
   const startTest = useCallback(() => {
     if (status !== 'idle') return
@@ -121,7 +125,7 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
   // Zen mode: generate more words when approaching the end
   useEffect(() => {
     if (mode === 'zen' && status === 'running' && currentWordIndex >= words.length - 20) {
-      const more = generateWords(200, { punctuation, numbers, language })
+      const more = generateWords(200, { punctuation, numbers, language, difficulty })
       setWords(prev => [...prev, ...more])
     }
   }, [mode, status, currentWordIndex, words.length, punctuation, numbers, language])
@@ -190,6 +194,15 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
 
     if (e.key.length !== 1) return
 
+    // Anti-cheat: track keystroke timing
+    const now = Date.now()
+    keystrokeTimesRef.current.push(now)
+    if (keystrokeTimesRef.current.length > 20) {
+      const recent = keystrokeTimesRef.current.slice(-20)
+      const fastCount = recent.filter((t, i) => i > 0 && t - recent[i - 1] < 25).length
+      if (fastCount > 10) suspiciousRef.current = true
+    }
+
     const expectedChar = currentWord[currentCharIndex]
     const isCorrect = e.key === expectedChar
     const isExtra = currentCharIndex >= currentWord.length
@@ -257,11 +270,13 @@ export function useTypingTest({ mode, duration, wordCount, punctuation, numbers,
       consistency = Math.max(0, Math.round(100 - cv))
     }
 
+    const suspicious = suspiciousRef.current || wpm > 300
+
     return {
       wpm, rawWpm, accuracy, correct,
       incorrect: errors, missed, totalChars, consistency,
       wpmHistory, rawWpmHistory, errorHistory,
-      elapsedSeconds: elapsedSec,
+      elapsedSeconds: elapsedSec, suspicious,
     }
   }, [getElapsedSeconds, currentWordIndex, typed, words, wpmHistory, rawWpmHistory, errorHistory])
 

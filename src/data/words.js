@@ -352,6 +352,114 @@ const wordLists = {
     "uphar","uthna","vaada","vaapas","vastu","vichar","vijay","vishwas","yakeen","yatra",
     "yoddha","yogi","zaroor","zehreela","zikr","zilla","zinda","zor","zurrat",
   ],
+  japanese: [
+    "watashi","anata","kore","sore","are","doko","nani","dare","itsu","naze",
+    "hai","iie","ohayo","konnichiwa","sayonara","arigatou","sumimasen","gomen",
+    "taberu","nomu","iku","kuru","miru","kiku","hanasu","yomu","kaku","neru",
+    "okiru","aruku","hashiru","tobu","oyogu","utau","odoru","warau","naku",
+    "uchi","ie","gakkou","mise","eki","michi","yama","kawa","umi","sora",
+    "ki","hana","mizu","hi","kaze","ame","yuki","tsuki","hoshi","kumo",
+    "neko","inu","tori","sakana","uma","ushi","usagi","kuma","saru","hebi",
+    "asa","hiru","yoru","kyou","ashita","kinou","ima","tokidoki","itsumo","mada",
+    "ookii","chiisai","nagai","mijikai","takai","hikui","atarashii","furui","hayai","osoi",
+    "atsui","samui","tanoshii","kanashii","ureshii","kowai","muzukashii","yasashii",
+    "akai","aoi","shiroi","kuroi","kiiroi","midori","chairo","murasaki","pinku","orenji",
+    "hitotsu","futatsu","mittsu","yottsu","itsutsu","muttsu","nanatsu","yattsu","kokonotsu","tou",
+    "hito","onna","otoko","kodomo","tomodachi","sensei","kazoku","chichi","haha","ani",
+    "ane","otouto","imouto","musuko","musume","shigoto","benkyou","ryokou","denwa","tegami",
+    "hon","enpitsu","tsukue","isu","mado","doa","tokei","kaban","kutsu","fuku",
+    "gohan","pan","niku","yasai","kudamono","tamago","gyuunyuu","ocha","koohii","osake",
+    "genki","byouki","shizuka","nigiyaka","kirei","kitanai","taisetsu","hitsuyou","kantan","fukuzatsu",
+    "chikaku","tooku","ue","shita","mae","ushiro","migi","hidari","naka","soto",
+    "motto","sukoshi","takusan","zenbu","hontou","tabun","kitto","moshi","demo","dakara",
+  ],
+  korean: [
+    "na","neo","geu","i","jeo","uri","mwo","eodi","eonje","wae",
+    "ne","anio","annyeong","gamsahamnida","mianhamnida","juseyo","saranghae",
+    "meokda","masida","gada","oda","boda","deutda","malhada","ilkda","ssuda","jada",
+    "ireonada","geotda","ttwida","nalda","suyeonghada","noraehada","chuda","utda","ulda",
+    "jip","hakgyo","gage","yeok","gil","san","gang","bada","haneul","ttang",
+    "namu","kkot","mul","bul","baram","bi","nun","dal","byeol","gureum",
+    "goyangi","gae","sae","mulgogi","mal","so","tokki","gom","wonsung","baem",
+    "achim","jeonyeok","bam","oneul","naeil","eoje","jigeum","gakkeum","hangsang","ajik",
+    "keun","jageun","gin","jjalbeun","nopun","najeun","sae","oraedoen","ppareun","neurin",
+    "deoun","chuwun","jeulgeoun","seulpeun","gippeun","museeun","eoryeoun","swiun",
+    "ppalgan","parang","hayan","kkaman","norang","chorok","galse","boraseog","bunhong",
+    "hana","dul","set","net","daseot","yeoseot","ilgop","yeodeol","ahop","yeol",
+    "saram","yeoja","namja","ai","chingu","seonsaengnim","gajok","abeoji","eomeoni",
+    "hyeong","nuna","dongsaeng","adeul","ttal","il","gongbu","yeohaeng","jeonhwa","pyeonji",
+    "chaek","yeonpil","chaeksang","uija","changmun","mun","sigye","gabang","sinbal","os",
+    "bap","bbang","gogi","yachae","gwail","gyeran","uyu","cha","keopi","sul",
+    "geongang","apeum","joyonghan","sikkeureon","yeppeun","deoreeun","jungyohan","pillyohan",
+    "gakkai","meoli","wi","arae","ap","dwi","oreun","oen","an","bakk",
+    "deo","jogeum","mani","jeonbu","jeongmal","amado","bandsi","mannyak","hajiman","geuraeyo",
+  ],
+  arabic: [
+    "ana","anta","anti","huwa","hiya","nahnu","antum","hum","hadha","hadhihi",
+    "hunaka","ayna","mata","limadha","kayfa","kam","man","madha","naam","la",
+    "marhaba","shukran","afwan","min","fadlik","masaa","sabah","layla","yawm","shahid",
+    "akala","shariba","dhahaba","jaa","raaa","samia","takallama","qaraa","kataba","naama",
+    "qama","mashaa","jaraa","tara","sabaha","ghannaa","raqasa","dahika","bakaa",
+    "bayt","madrasa","suq","tariq","jabal","nahr","bahr","samaa","ard","shajar",
+    "zahra","maa","nar","rih","matar","thalj","qamar","najm","sahab","shams",
+    "qitta","kalb","tayr","samak","hisan","baqara","arnab","dubb","qird","hayya",
+    "sabah","dhuhr","masaa","yawm","ghadan","ams","alan","ahyanan","daiman","baad",
+    "kabir","saghir","tawil","qasir","ali","munkafid","jadid","qadim","sari","bati",
+    "harr","barid","saiid","hazin","farih","khaif","saab","sahl",
+    "ahmar","azraq","abyad","aswad","asfar","akhdar","bunni","banafsaji","zahri","burtuqali",
+    "wahid","ithnan","thalatha","arbaa","khamsa","sitta","sabaa","thamaniya","tisaa","ashara",
+    "insan","imraa","rajul","tifl","sadiq","muallim","usra","ab","umm","akh",
+    "ukht","ibn","bint","amal","dirasa","safar","hatif","risala",
+    "kitab","qalam","maktab","kursi","nafidha","bab","saa","haqiba","hidhaa","thawb",
+    "taam","khubz","lahm","khudra","fakiha","bayd","halib","shai","qahwa","asir",
+    "sihha","marad","hadi","saakhib","jamil","wasikh","muhimm","daruri","basit","muaqqad",
+    "qarib","baiid","fawq","taht","amam","khalfa","yamin","yasar","dakhil","kharij",
+    "akthar","qalil","kathir","kull","haqiqi","rubbama","bialtaakid","idha","lakin","lihadha",
+  ],
+  russian: [
+    "ya","ty","on","ona","ono","my","vy","oni","eto","to",
+    "gde","kogda","pochemu","kak","kto","chto","da","net","spasibo","pozhaluysta",
+    "privet","do","svidaniya","izvinite","khorosho","plokho",
+    "est","pit","idti","prikhodit","videt","slyshat","govorit","chitat","pisat","spat",
+    "vstavat","khodit","bezhat","letat","plavat","pet","tantsevat","smeyatsya","plakat",
+    "dom","shkola","magazin","ulitsa","gora","reka","more","nebo","zemlya","derevo",
+    "tsvetok","voda","ogon","veter","dozhd","sneg","luna","zvezda","oblako","solntse",
+    "koshka","sobaka","ptitsa","ryba","loshad","korova","krolik","medved","obezyana","zmeya",
+    "utro","den","vecher","noch","segodnya","zavtra","vchera","seychas","inogda","vsegda",
+    "bolshoy","malenkiy","dlinnyy","korotkiy","vysokiy","nizkiy","novyy","staryy","bystryy","medlennyy",
+    "goryachiy","kholodnyy","vesyolyy","grustnyy","radostnyy","strashnyy","trudnyy","lyogkiy",
+    "krasnyy","siniy","belyy","chyornyy","zhyoltyy","zelyonyy","korichnevyy","fioletovyy","rozovyy","oranzhevyy",
+    "odin","dva","tri","chetyre","pyat","shest","sem","vosem","devyat","desyat",
+    "chelovek","zhenshchina","muzhchina","rebyonok","drug","uchitel","semya","otets","mat","brat",
+    "sestra","syn","doch","rabota","uchyoba","puteshestviye","telefon","pismo",
+    "kniga","karandash","stol","stul","okno","dver","chasy","sumka","obuv","odezhda",
+    "eda","khleb","myaso","ovoshchi","frukty","yaytso","moloko","chay","kofe","sok",
+    "zdorovye","bolezn","tikhiy","gromkiy","krasivyy","gryaznyy","vazhnyy","nuzhnyy","prostoye","slozhnyy",
+    "blizko","daleko","verkh","niz","pered","szadi","pravo","levo","vnutri","snaruzhi",
+    "bolshe","nemnogo","mnogo","vsyo","pravda","mozhet","tochno","yesli","no","poetomu",
+  ],
+  chinese: [
+    "wo","ni","ta","women","nimen","tamen","zhe","na","nali","nar",
+    "shenme","shei","nali","weishenme","zenme","duoshao","shijian","dui","bu","shi",
+    "nihao","xiexie","bukeqi","duibuqi","zaijian","hao","huanying","qing",
+    "chi","he","qu","lai","kan","ting","shuo","du","xie","shui",
+    "qilai","zou","pao","fei","youyong","changge","tiaowu","xiao","ku",
+    "jia","xuexiao","shangdian","lu","shan","he","hai","tian","di","shu",
+    "hua","shui","huo","feng","yu","xue","yueliang","xingxing","yun","taiyang",
+    "mao","gou","niao","yu","ma","niu","tuzi","xiong","houzi","she",
+    "zaoshang","zhongwu","wanshang","jintian","mingtian","zuotian","xianzai","youshihou","zongshi","hai",
+    "da","xiao","chang","duan","gao","di","xin","jiu","kuai","man",
+    "re","leng","gaoxing","nanguo","kaixin","haipa","nan","rongyi",
+    "hong","lan","bai","hei","huang","lv","zong","zi","fen","cheng",
+    "yi","er","san","si","wu","liu","qi","ba","jiu","shi",
+    "ren","nv","nan","haizi","pengyou","laoshi","jiaren","baba","mama","gege",
+    "jiejie","didi","meimei","erzi","nver","gongzuo","xuexi","lvxing","dianhua","xin",
+    "shu","bi","zhuozi","yizi","chuanghu","men","zhong","bao","xie","yifu",
+    "fan","mianbao","rou","shucai","shuiguo","jidan","niunai","cha","kafei","guozhi",
+    "jiankang","bing","anjing","chao","piaoliang","zang","zhongyao","xuyao","jiandan","fuza",
+    "jin","yuan","shang","xia","qian","hou","you","zuo","li","wai",
+    "geng","yidian","henduo","quanbu","zhen","keneng","yiding","ruguo","danshi","suoyi",
+  ],
 }
 
 export const languages = Object.keys(wordLists)
@@ -368,8 +476,19 @@ function capitalizeFirst(word) {
   return word.charAt(0).toUpperCase() + word.slice(1)
 }
 
-export function generateWords(count = 200, { punctuation = false, numbers = false, language = 'english' } = {}) {
-  const pool = wordLists[language] || wordLists.english
+export function generateWords(count = 200, { punctuation = false, numbers = false, language = 'english', difficulty = 'medium' } = {}) {
+  const fullPool = wordLists[language] || wordLists.english
+  let pool
+  if (difficulty === 'easy') {
+    // Short common words (first 200 or words <= 4 chars)
+    pool = fullPool.slice(0, Math.min(200, fullPool.length))
+  } else if (difficulty === 'hard') {
+    // Longer/uncommon words (6+ chars or extended section)
+    const hard = fullPool.filter(w => w.length >= 6)
+    pool = hard.length > 50 ? hard : fullPool.slice(Math.floor(fullPool.length / 2))
+  } else {
+    pool = fullPool
+  }
   const words = []
   let shouldCapitalize = false
 

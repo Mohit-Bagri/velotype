@@ -25,6 +25,7 @@ function App() {
   const [numbers, setNumbers] = useState(false)
   const [language, setLanguage] = useState('english')
   const [quoteLength, setQuoteLength] = useState('short')
+  const [difficulty, setDifficulty] = useState('medium')
   const [soundEnabled, setSoundEnabled] = useState(() => {
     return localStorage.getItem('velotype-sound') !== 'false'
   })
@@ -42,7 +43,7 @@ function App() {
     words, currentWordIndex, currentCharIndex, typed,
     status, timeLeft, liveWpm, elapsedTime,
     handleKeyDown, resetTest, getStats, finishZen,
-  } = useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength })
+  } = useTypingTest({ mode, duration, wordCount, punctuation, numbers, language, quoteLength, difficulty })
 
   const { playType, playError, playSpace, playBack } = useSound(soundEnabled)
   const [stats, setStats] = useState(null)
@@ -124,6 +125,7 @@ function App() {
             numbers={numbers} setNumbers={setNumbers}
             language={language} setLanguage={setLanguage}
             quoteLength={quoteLength} setQuoteLength={setQuoteLength}
+            difficulty={difficulty} setDifficulty={setDifficulty}
             visible={showChrome}
             disabled={status === 'running'}
             onReset={resetTest}

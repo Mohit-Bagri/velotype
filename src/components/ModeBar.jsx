@@ -9,6 +9,7 @@ export default function ModeBar({
   mode, setMode, duration, setDuration, wordCount, setWordCount,
   punctuation, setPunctuation, numbers, setNumbers,
   language, setLanguage, quoteLength, setQuoteLength,
+  difficulty, setDifficulty,
   visible, disabled,
   onReset, soundEnabled, onToggleSound,
 }) {
@@ -99,25 +100,46 @@ export default function ModeBar({
 
       </nav>
 
-      {/* Language */}
-      <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--t-sub)' }}>
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
-          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-        </svg>
-        <select
-          value={language}
-          onChange={e => !disabled && setLanguage(e.target.value)}
-          disabled={disabled}
-          className="bg-transparent outline-none cursor-pointer appearance-none transition-all duration-200 disabled:opacity-40 text-[11px]" style={{ color: 'var(--t-sub)' }}
-        >
-          {languages.map(l => (
-            <option key={l} value={l} style={{ background: 'var(--t-option-bg)', color: 'var(--t-text)' }}>{l}</option>
-          ))}
-        </select>
-        <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="opacity-40">
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+      {/* Language + Difficulty */}
+      <div className="flex items-center gap-4 text-[11px]" style={{ color: 'var(--t-sub)' }}>
+        <div className="flex items-center gap-1.5">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+          </svg>
+          <select
+            value={language}
+            onChange={e => !disabled && setLanguage(e.target.value)}
+            disabled={disabled}
+            className="bg-transparent outline-none cursor-pointer appearance-none transition-all duration-200 disabled:opacity-40 text-[11px]" style={{ color: 'var(--t-sub)' }}
+          >
+            {languages.map(l => (
+              <option key={l} value={l} style={{ background: 'var(--t-option-bg)', color: 'var(--t-text)' }}>{l}</option>
+            ))}
+          </select>
+          <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="opacity-40">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+
+        {mode !== 'quote' && (
+          <div className="flex items-center gap-1.5">
+            {['easy', 'medium', 'hard'].map(d => (
+              <button
+                key={d}
+                onClick={() => !disabled && setDifficulty(d)}
+                disabled={disabled}
+                className="transition-all duration-200 cursor-pointer disabled:opacity-40"
+                style={{
+                  color: d === difficulty ? 'var(--t-text)' : 'var(--t-sub)',
+                  textShadow: d === difficulty ? '0 0 8px var(--t-accent)' : 'none',
+                }}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   )
