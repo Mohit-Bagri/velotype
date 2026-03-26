@@ -61,7 +61,7 @@ function TipRow({ color, label, val, textColor, valColor }) {
   )
 }
 
-export default function Results({ stats, duration, mode, language, punctuation, numbers, wordCount }) {
+export default function Results({ stats, duration, mode, language, punctuation, numbers, wordCount, difficulty }) {
   const c = useThemeColors()
   if (!stats) return null
 
@@ -135,17 +135,20 @@ export default function Results({ stats, duration, mode, language, punctuation, 
         </div>
       </div>
 
-      <div className="h-px mt-4" style={{ background: c.divider }} />
+      <div className="h-px mt-6" style={{ background: c.divider }} />
 
       {/* ── Details row ── */}
-      <div className="grid grid-cols-5 py-6 px-2">
+      <div className="grid grid-cols-5 py-8 px-2">
         <DetailBlock label="test type" subColor={c.sub}>
           <div className="text-accent leading-relaxed">
-            {mode}{mode === 'time' ? ` ${duration}` : mode === 'words' ? ` ${wordCount}` : ''}
-            {punctuation && <span style={{ color: c.sub }}> punctuation</span>}
-            {numbers && <span style={{ color: c.sub }}> numbers</span>}
+            {mode}{mode === 'time' ? ` ${duration}s` : mode === 'words' ? ` ${wordCount}` : ''}
           </div>
-          <div style={{ color: c.sub }}>{language}</div>
+          <div className="text-[13px] leading-relaxed" style={{ color: c.sub }}>
+            {language}
+            {difficulty !== 'medium' && ` ${difficulty}`}
+            {punctuation && ' punctuation'}
+            {numbers && ' numbers'}
+          </div>
         </DetailBlock>
         <DetailBlock label="raw" subColor={c.sub}>
           <span className="text-text">{stats.rawWpm}</span>

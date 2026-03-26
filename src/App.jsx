@@ -160,7 +160,7 @@ function App() {
             </motion.div>
           ) : (
             <motion.div key="results" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-              <Results stats={stats} duration={stats?.elapsedSeconds || duration} mode={mode} language={language} punctuation={punctuation} numbers={numbers} wordCount={wordCount} />
+              <Results stats={stats} duration={stats?.elapsedSeconds || duration} mode={mode} language={language} punctuation={punctuation} numbers={numbers} wordCount={wordCount} difficulty={difficulty} />
             </motion.div>
           )}
         </div>
