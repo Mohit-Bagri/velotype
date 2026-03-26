@@ -135,10 +135,10 @@ export default function Results({ stats, duration, mode, language, punctuation, 
         </div>
       </div>
 
-      <div className="h-px mt-8 mb-2" style={{ background: c.divider }} />
+      <div className="h-px mt-10" style={{ background: c.divider }} />
 
       {/* ── Details row ── */}
-      <div className="grid grid-cols-5 pt-6 pb-8 px-2">
+      <div className="grid grid-cols-5 pt-8 pb-8 px-2">
         <DetailBlock label="test type" subColor={c.sub}>
           <div className="text-accent leading-relaxed">
             {mode}{mode === 'time' ? ` ${duration}s` : mode === 'words' ? ` ${wordCount}` : ''}
