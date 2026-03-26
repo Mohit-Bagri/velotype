@@ -3,28 +3,45 @@ import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 
-const C = {
-  accent: '#8b5cf6',
-  sub: 'rgba(255,255,255,0.3)',
-  text: '#d1d0e0',
-  error: '#f87171',
-  correct: '#a3e635',
-  grid: 'rgba(255,255,255,0.04)',
-  label: 'rgba(255,255,255,0.18)',
-  raw: 'rgba(255,255,255,0.35)',
+const getC = () => {
+  const isLight = document.documentElement.dataset.theme === 'light'
+  return {
+    accent: isLight ? '#7c3aed' : '#8b5cf6',
+    sub: isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)',
+    text: isLight ? '#1a1a2e' : '#d1d0e0',
+    error: isLight ? '#dc2626' : '#f87171',
+    correct: isLight ? '#16a34a' : '#a3e635',
+    grid: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)',
+    label: isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.18)',
+    raw: isLight ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.35)',
+    tooltipBg: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(5,5,10,0.95)',
+    tooltipBorder: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+    tooltipTitle: isLight ? '#1a1a2e' : '#fff',
+    tooltipValue: isLight ? '#1a1a2e' : '#fff',
+    tooltipLabel: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
+    containerBg: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(0,0,0,0.4)',
+    containerBorder: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.06)',
+    statBg: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.015)',
+    divider: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)',
+    separatorSlash: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+    dimText: isLight ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.25)',
+    cursorStroke: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+    activeDotStroke: isLight ? '#ffffff' : '#0f0f14',
+  }
 }
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload || {}
+  const C = getC()
   return (
     <div style={{
-      background: 'rgba(5,5,10,0.95)',
-      border: '1px solid rgba(255,255,255,0.1)',
+      background: C.tooltipBg,
+      border: `1px solid ${C.tooltipBorder}`,
       borderRadius: 8, padding: '10px 14px', fontSize: 12,
       minWidth: 130,
     }}>
-      <div style={{ color: '#fff', fontWeight: 600, marginBottom: 6, fontSize: 13 }}>{label}</div>
+      <div style={{ color: C.tooltipTitle, fontWeight: 600, marginBottom: 6, fontSize: 13 }}>{label}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         <Row color={C.error} label="errors" value={d.err || 0} />
         <Row color={C.accent} label="wpm" value={d.wpm || 0} />
@@ -35,16 +52,18 @@ function ChartTooltip({ active, payload, label }) {
 }
 
 function Row({ color, label, value }) {
+  const C = getC()
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
       <span style={{ width: 8, height: 8, borderRadius: 2, background: color, flexShrink: 0 }} />
-      <span style={{ color: 'rgba(255,255,255,0.5)', flex: 1 }}>{label}:</span>
-      <span style={{ color: '#fff', fontWeight: 500 }}>{value}</span>
+      <span style={{ color: C.tooltipLabel, flex: 1 }}>{label}:</span>
+      <span style={{ color: C.tooltipValue, fontWeight: 500 }}>{value}</span>
     </div>
   )
 }
 
 function ChartLegend() {
+  const C = getC()
   return (
     <div className="flex items-center justify-center gap-6 text-[11px] pt-3" style={{ color: C.label }}>
       <span className="flex items-center gap-2">
@@ -66,6 +85,7 @@ function ChartLegend() {
 export default function Results({ stats, duration, mode, onRestart }) {
   if (!stats) return null
 
+  const C = getC()
   const data = stats.wpmHistory.map((wpm, i) => ({
     t: i + 1, wpm, raw: stats.rawWpmHistory[i] || 0, err: stats.errorHistory[i] || 0,
   }))
@@ -79,8 +99,8 @@ export default function Results({ stats, duration, mode, onRestart }) {
       transition={{ duration: 0.3 }}
       className="w-full rounded-2xl overflow-hidden"
       style={{
-        background: 'rgba(0,0,0,0.4)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        background: C.containerBg,
+        border: `1px solid ${C.containerBorder}`,
         boxShadow: 'inset 0 1px 0 0 rgba(255,255,255,0.03), 0 16px 48px -16px rgba(0,0,0,0.5)',
         backdropFilter: 'blur(20px)',
       }}
@@ -93,17 +113,17 @@ export default function Results({ stats, duration, mode, onRestart }) {
         <Stat label="consistency" value={`${stats.consistency}%`} />
       </div>
 
-      <div className="mx-12 h-px bg-white/[0.05]" />
+      <div className="mx-12 h-px" style={{ background: C.divider }} />
 
       {/* Chart */}
-      <div className="px-12 pt-8 pb-6">
+      <div className="px-14 pt-8 pb-6">
         <span className="text-[10px] uppercase tracking-[0.2em] font-medium" style={{ color: C.label }}>
           Performance
         </span>
 
         <div className="mt-4" style={{ height: 250 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 40, left: 10, bottom: 5 }}>
+            <AreaChart data={data} margin={{ top: 10, right: 50, left: 15, bottom: 5 }}>
               <defs>
                 <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={C.accent} stopOpacity={0.15} />
@@ -124,7 +144,7 @@ export default function Results({ stats, duration, mode, onRestart }) {
                 tick={{ fontSize: 11, fill: C.label }}
                 tickLine={false}
                 axisLine={false}
-                width={36}
+                width={40}
                 domain={[0, yMax]}
                 allowDecimals={false}
               />
@@ -135,14 +155,14 @@ export default function Results({ stats, duration, mode, onRestart }) {
                 tick={{ fontSize: 11, fill: C.label }}
                 tickLine={false}
                 axisLine={false}
-                width={28}
+                width={35}
                 allowDecimals={false}
               />
-              <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }} />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: C.cursorStroke, strokeWidth: 1 }} />
               <Area
                 yAxisId="w" type="monotone" dataKey="wpm" name="WPM"
                 stroke={C.accent} strokeWidth={2} fill="url(#wg)"
-                dot={false} activeDot={{ r: 4, fill: C.accent, stroke: '#0f0f14', strokeWidth: 2 }}
+                dot={false} activeDot={{ r: 4, fill: C.accent, stroke: C.activeDotStroke, strokeWidth: 2 }}
               />
               <Line
                 yAxisId="w" type="monotone" dataKey="raw" name="Raw"
@@ -163,10 +183,10 @@ export default function Results({ stats, duration, mode, onRestart }) {
         <ChartLegend />
       </div>
 
-      <div className="mx-12 h-px bg-white/[0.05]" />
+      <div className="mx-12 h-px" style={{ background: C.divider }} />
 
       {/* Details */}
-      <div className="grid grid-cols-3 px-12 py-8">
+      <div className="grid grid-cols-3 px-14 py-8">
         <div>
           <div className="text-[10px] uppercase tracking-[0.2em] mb-2.5" style={{ color: C.label }}>test type</div>
           <div className="text-accent text-[15px] font-medium">
@@ -178,21 +198,21 @@ export default function Results({ stats, duration, mode, onRestart }) {
           <div className="text-[10px] uppercase tracking-[0.2em] mb-2.5" style={{ color: C.label }}>characters</div>
           <div className="text-[15px] font-semibold tabular-nums">
             <span style={{ color: C.correct }}>{stats.correct}</span>
-            <span className="text-white/10"> / </span>
+            <span style={{ color: C.separatorSlash }}> / </span>
             <span style={{ color: C.error }}>{stats.incorrect}</span>
-            <span className="text-white/10"> / </span>
-            <span className="text-white/25">{stats.missed}</span>
-            <span className="text-white/10"> / </span>
-            <span className="text-white/25">{stats.totalChars}</span>
+            <span style={{ color: C.separatorSlash }}> / </span>
+            <span style={{ color: C.dimText }}>{stats.missed}</span>
+            <span style={{ color: C.separatorSlash }}> / </span>
+            <span style={{ color: C.dimText }}>{stats.totalChars}</span>
           </div>
         </div>
         <div className="text-right">
           <div className="text-[10px] uppercase tracking-[0.2em] mb-2.5" style={{ color: C.label }}>time</div>
-          <div className="text-text text-[15px] font-semibold tabular-nums">{stats.elapsedSeconds || duration}s</div>
+          <div className="text-[15px] font-semibold tabular-nums" style={{ color: C.text }}>{stats.elapsedSeconds || duration}s</div>
         </div>
       </div>
 
-      <div className="mx-12 h-px bg-white/[0.05]" />
+      <div className="mx-12 h-px" style={{ background: C.divider }} />
 
       {/* Restart */}
       <div className="flex justify-center py-6">
@@ -211,8 +231,9 @@ export default function Results({ stats, duration, mode, onRestart }) {
 }
 
 function Stat({ label, value, accent }) {
+  const C = getC()
   return (
-    <div className="p-8 text-center rounded-xl" style={{ background: 'rgba(255,255,255,0.015)' }}>
+    <div className="p-8 text-center rounded-xl" style={{ background: C.statBg }}>
       <div className="text-[10px] uppercase tracking-[0.2em] mb-3" style={{ color: C.label }}>{label}</div>
       <div className={`text-[2.75rem] font-bold leading-none tabular-nums ${accent ? 'text-accent' : 'text-text'}`}>
         {value}

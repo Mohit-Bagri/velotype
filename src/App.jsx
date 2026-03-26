@@ -7,9 +7,11 @@ import Results from './components/Results'
 import { useTypingTest } from './hooks/useTypingTest'
 import { useSound } from './hooks/useSound'
 
-const ASCII_LOGO = `  ╦  ╦╔═╗╦  ╔═╗╔╦╗╦ ╦╔═╗╔═╗
-  ╚╗╔╝║╣ ║  ║ ║ ║ ╚╦╝╠═╝║╣
-   ╚╝ ╚═╝╩═╝╚═╝ ╩  ╩ ╩  ╚═╝`
+const ASCII_LOGO = `__     _______ _     ___ _______   ______  _____
+\\ \\   / / ____| |   / _ \\_   _\\ \\ / /  _ \\| ____|
+ \\ \\ / /|  _| | |  | | | || |  \\ V /| |_) |  _|
+  \\ V / | |___| |__| |_| || |   | | |  __/| |___
+   \\_/  |_____|_____\\___/ |_|   |_| |_|   |_____|`
 
 function App() {
   const [mode, setMode] = useState('time')
@@ -22,6 +24,10 @@ function App() {
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem('velotype-sound')
     return saved !== null ? saved === 'true' : true
+  })
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('velotype-theme')
+    return saved || 'dark'
   })
 
   const {
@@ -38,6 +44,15 @@ function App() {
     if (status === 'finished') setStats(getStats())
     else setStats(null)
   }, [status, getStats])
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('velotype-theme', theme)
+  }, [theme])
+
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+  }, [])
 
   const toggleSound = useCallback(() => {
     setSoundEnabled(prev => {
@@ -88,7 +103,7 @@ function App() {
             transition={{ duration: 0.25 }}
             className="flex justify-center mb-8"
           >
-            <pre className="ascii-glow text-center select-none">
+            <pre className="ascii-glow text-center select-none" style={{ fontSize: '0.65rem', lineHeight: 1.35 }}>
               {ASCII_LOGO}
             </pre>
           </motion.div>
@@ -107,6 +122,8 @@ function App() {
             onReset={resetTest}
             soundEnabled={soundEnabled}
             onToggleSound={toggleSound}
+            theme={theme}
+            onToggleTheme={toggleTheme}
           />
 
           {/* Content */}

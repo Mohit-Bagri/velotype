@@ -3,13 +3,19 @@ import { useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react
 const LINE_HEIGHT = 48
 const VISIBLE_LINES = 3
 
-const COL_UNTYPED = 'rgba(255,255,255,0.18)'
-const COL_CORRECT = '#d1d0e0'
-const COL_ERROR = '#f87171'
-const COL_EXTRA = 'rgba(248,113,113,0.35)'
-const COL_CARET = '#8b5cf6'
+const getColors = () => {
+  const isLight = document.documentElement.dataset.theme === 'light'
+  return {
+    untyped: isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.18)',
+    correct: isLight ? '#1a1a2e' : '#d1d0e0',
+    error: isLight ? '#dc2626' : '#f87171',
+    extra: isLight ? 'rgba(220,38,38,0.35)' : 'rgba(248,113,113,0.35)',
+    caret: isLight ? '#7c3aed' : '#8b5cf6',
+  }
+}
 
 export default function TypingArea({ words, currentWordIndex, currentCharIndex, typed, status, onKeyDown }) {
+  const colors = getColors()
   const containerRef = useRef(null)
   const wordsRef = useRef(null)
   const wordEls = useRef({})
@@ -121,24 +127,24 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                 ref={el => { if (el) wordEls.current[wi] = el }}
                 style={{
                   textDecoration: hasError && isPast ? 'underline' : 'none',
-                  textDecorationColor: hasError ? COL_ERROR : undefined,
+                  textDecorationColor: hasError ? colors.error : undefined,
                   textUnderlineOffset: '6px',
                   textDecorationThickness: '2px',
                 }}
               >
                 {/* Caret at position 0 */}
-                {isCurrent && currentCharIndex === 0 && <Caret focused={focused} />}
+                {isCurrent && currentCharIndex === 0 && <Caret focused={focused} caretColor={colors.caret} />}
 
                 {word.split('').map((char, ci) => {
                   const cd = wordTyped[ci]
-                  let color = COL_UNTYPED
-                  if (cd) color = cd.correct ? COL_CORRECT : COL_ERROR
+                  let color = colors.untyped
+                  if (cd) color = cd.correct ? colors.correct : colors.error
 
                   return (
                     <span key={ci} style={{ color, transition: 'color 0.06s ease' }}>
                       {char}
                       {/* Caret after this char */}
-                      {isCurrent && ci + 1 === currentCharIndex && currentCharIndex <= word.length && <Caret focused={focused} />}
+                      {isCurrent && ci + 1 === currentCharIndex && currentCharIndex <= word.length && <Caret focused={focused} caretColor={colors.caret} />}
                     </span>
                   )
                 })}
@@ -149,9 +155,9 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                   .filter(idx => idx >= word.length)
                   .sort((a, b) => a - b)
                   .map(idx => (
-                    <span key={`x${idx}`} style={{ color: COL_EXTRA }}>
+                    <span key={`x${idx}`} style={{ color: colors.extra }}>
                       {wordTyped[idx].char}
-                      {isCurrent && idx + 1 === currentCharIndex && <Caret focused={focused} />}
+                      {isCurrent && idx + 1 === currentCharIndex && <Caret focused={focused} caretColor={colors.caret} />}
                     </span>
                   ))
                 }
@@ -164,7 +170,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
   )
 }
 
-function Caret({ focused }) {
+function Caret({ focused, caretColor = '#8b5cf6' }) {
   return (
     <span
       className={focused ? 'caret' : ''}
@@ -172,8 +178,8 @@ function Caret({ focused }) {
         display: 'inline-block',
         width: 2.5,
         height: '1.3em',
-        background: COL_CARET,
-        boxShadow: `0 0 8px ${COL_CARET}`,
+        background: caretColor,
+        boxShadow: `0 0 8px ${caretColor}`,
         borderRadius: 2,
         verticalAlign: 'text-bottom',
         marginLeft: -1,
