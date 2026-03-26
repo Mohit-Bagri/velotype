@@ -104,7 +104,7 @@ export default function Results({ stats, duration, mode, language, punctuation, 
           {/* Chart */}
           <div className="flex-1 min-w-0">
             <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={data} margin={{ top: 5, right: 35, left: 5, bottom: 5 }}>
+              <AreaChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                 <defs>
                   <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={c.accent} stopOpacity={0.15} />
