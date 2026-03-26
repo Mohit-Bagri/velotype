@@ -95,8 +95,8 @@ export default function Results({ stats, duration, mode, language, punctuation, 
         {/* Chart with axis labels */}
         <div className="flex-1 min-w-0 flex">
           {/* Left axis label */}
-          <div className="flex items-center justify-center shrink-0" style={{ width: 16 }}>
-            <div className="text-[9px] uppercase tracking-[0.12em] whitespace-nowrap" style={{ color: c.sub, writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+          <div className="flex items-center justify-center shrink-0" style={{ width: 14, marginRight: -2 }}>
+            <div className="text-[8px] uppercase tracking-[0.1em] whitespace-nowrap" style={{ color: c.sub, writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
               Words per Minute
             </div>
           </div>
@@ -127,8 +127,8 @@ export default function Results({ stats, duration, mode, language, punctuation, 
           </div>
 
           {/* Right axis label */}
-          <div className="flex items-center justify-center shrink-0" style={{ width: 16 }}>
-            <div className="text-[9px] uppercase tracking-[0.12em] whitespace-nowrap" style={{ color: c.sub, writingMode: 'vertical-rl' }}>
+          <div className="flex items-center justify-center shrink-0" style={{ width: 14, marginLeft: -2 }}>
+            <div className="text-[8px] uppercase tracking-[0.1em] whitespace-nowrap" style={{ color: c.sub, writingMode: 'vertical-rl' }}>
               Errors
             </div>
           </div>
