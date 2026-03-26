@@ -7,6 +7,12 @@
 **Type fast. Track progress. Beat your best.**
 
 <p align="center">
+  <a href="https://velo-type.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/🔗_Live_Demo-velotype-F5C518?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
+  </a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" alt="React" />
   <img src="https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite" alt="Vite" />
   <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss" alt="Tailwind" />
@@ -36,7 +42,7 @@
 
 VeloType is a sleek, minimal typing speed test inspired by MonkeyType. Built for speed freaks who want a distraction-free experience with real-time WPM tracking, detailed post-test analytics and smooth animations.
 
-All processing happens locally in the browser — no accounts, no servers, no tracking.
+All processing happens locally in the browser -no accounts, no servers, no tracking.
 
 ---
 
@@ -140,7 +146,7 @@ npm run preview
 Type the displayed words as fast and accurately as you can:
 
 - **Correct characters** turn white
-- **Wrong characters** turn red — backspace to fix
+- **Wrong characters** turn red -backspace to fix
 - **Extra characters** beyond word length show in faded red
 - **Skipped characters** (pressing space early) count as errors
 - **Missed words** in past lines get underlined in red
