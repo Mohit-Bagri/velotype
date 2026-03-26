@@ -29,11 +29,14 @@
 
 - [About](#about)
 - [Features](#features)
+- [Test Modes](#test-modes)
+- [Themes](#themes)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Word Pool](#word-pool)
+- [Code Languages](#code-languages)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 
 ---
@@ -42,7 +45,7 @@
 
 VeloType is a sleek, minimal typing speed test inspired by MonkeyType. Built for speed freaks who want a distraction-free experience with real-time WPM tracking, detailed post-test analytics and smooth animations.
 
-All processing happens locally in the browser -no accounts, no servers, no tracking.
+All processing happens locally in the browser -- no accounts, no servers, no tracking.
 
 ---
 
@@ -50,17 +53,56 @@ All processing happens locally in the browser -no accounts, no servers, no track
 
 | Feature | Description |
 |---------|-------------|
-| **3 Test Modes** | Time (15/30/60/120s), Words (10/25/50/100) and Quote (short/medium/long) |
-| **7 Languages** | English, Spanish, French, German, Portuguese, Italian and Hindi |
-| **3,400+ Words** | Expanded word pools across all languages for varied tests |
-| **35 Curated Quotes** | Real quotes across 3 length categories |
-| **Real-time WPM** | Live words-per-minute calculation as you type |
+| **6 Test Modes** | Time, Words, Quote, Zen, Custom Text and Code |
+| **12 Languages** | English, Spanish, French, German, Portuguese, Italian, Hindi, Japanese, Korean, Arabic, Russian and Chinese |
+| **16 Code Languages** | JavaScript, Python, TypeScript, Go, Rust, Java, C#, C++, Ruby, PHP, Swift, Kotlin, SQL, HTML, CSS and Bash |
+| **9 Themes** | Dark, Light, Serika Dark, Serika Light, Nord, Dracula, Monokai, Ocean and Botanical |
+| **3,400+ Words** | Expanded word pools across all languages |
+| **Word Difficulty** | Easy (common short words), Medium (full pool) and Hard (6+ character words) |
+| **Smooth Caret** | Animated caret that glides between characters |
+| **Live WPM** | Real-time words-per-minute counter while typing |
 | **Performance Chart** | Post-test graph with WPM curve, raw WPM and error markers |
-| **Detailed Stats** | WPM, accuracy, raw WPM, consistency, character breakdown, elapsed time |
-| **Punctuation & Numbers** | Toggle punctuation marks and random numbers into tests |
+| **Detailed Stats** | WPM, accuracy, raw WPM, consistency, character breakdown |
+| **History Page** | Track WPM and accuracy over time with charts and pagination |
+| **Punctuation & Numbers** | Toggle punctuation marks and random numbers |
 | **Sound Effects** | Mechanical keyboard sounds for typing, errors, space and backspace |
-| **Smooth Animations** | Framer Motion transitions throughout the UI |
-| **Local History** | Last 50 results saved in browser localStorage |
+| **Caps Lock Warning** | Instant detection with visual warning |
+| **Anti-Cheat** | Detects inhuman keystroke speeds and flags suspicious results |
+| **Custom Text** | Paste your own text to practice typing |
+| **Zen Mode** | Infinite typing with no timer, press esc to end |
+| **Responsive** | Works on desktop, tablet and mobile |
+| **Accessible** | Keyboard navigation, ARIA roles, reduced motion support |
+
+---
+
+## Test Modes
+
+| Mode | Description | How it Ends |
+|------|-------------|-------------|
+| **Time** | Type for 15, 30, 60 or 120 seconds | Timer runs out |
+| **Words** | Type 10, 25, 50 or 100 words | All words typed |
+| **Quote** | Type short, medium or long real quotes | Full quote typed |
+| **Zen** | Type endlessly with no pressure | Press `esc` to end |
+| **Custom** | Paste your own text to practice | All words typed |
+| **Code** | Type real code snippets from 16 languages | Snippet completed |
+
+---
+
+## Themes
+
+| Theme | Accent |
+|-------|--------|
+| Dark | Purple |
+| Light | Purple |
+| Serika Dark | Yellow |
+| Serika Light | Yellow |
+| Nord | Cyan |
+| Dracula | Purple/Pink |
+| Monokai | Pink |
+| Ocean | Teal |
+| Botanical | Green |
+
+All themes are applied via CSS custom properties. Theme selection is persisted in localStorage.
 
 ---
 
@@ -86,19 +128,23 @@ velotype/
 │   └── favicon.svg
 ├── src/
 │   ├── components/
-│   │   ├── ModeBar.jsx          # Test mode selector navbar
-│   │   ├── TypingArea.jsx       # Word display, caret, character coloring
-│   │   ├── Timer.jsx            # Countdown / elapsed time display
-│   │   └── Results.jsx          # Post-test stats + performance chart
+│   │   ├── ModeBar.jsx            # Test mode selector navbar
+│   │   ├── TypingArea.jsx         # Word display, smooth caret, character coloring
+│   │   ├── Timer.jsx              # Countdown, elapsed time, live WPM
+│   │   ├── Results.jsx            # Post-test stats + performance chart
+│   │   ├── ThemePicker.jsx        # Theme selection dropdown
+│   │   ├── CustomTextModal.jsx    # Custom text paste modal
+│   │   └── History.jsx            # History page with charts + table
 │   ├── data/
-│   │   ├── words.js             # 3,400+ words across 7 languages
-│   │   └── quotes.js            # 35 curated quotes (short/medium/long)
+│   │   ├── words.js               # 3,400+ words across 12 languages
+│   │   ├── quotes.js              # 35 curated quotes (short/medium/long)
+│   │   └── codeSnippets.js        # Code snippets for 16 languages
 │   ├── hooks/
-│   │   ├── useTypingTest.js     # Core typing engine (state, WPM, history)
-│   │   └── useSound.js          # Keyboard sound effects
-│   ├── App.jsx                  # Main app layout + state management
-│   ├── index.css                # Global styles, theme, animations
-│   └── main.jsx                 # Entry point
+│   │   ├── useTypingTest.js       # Core typing engine (state, WPM, anti-cheat)
+│   │   └── useSound.js            # Keyboard sound effects
+│   ├── App.jsx                    # Main app layout + state management
+│   ├── index.css                  # 9 themes, responsive styles, accessibility
+│   └── main.jsx                   # Entry point
 ├── index.html
 ├── vite.config.js
 ├── eslint.config.js
@@ -146,22 +192,12 @@ npm run preview
 Type the displayed words as fast and accurately as you can:
 
 - **Correct characters** turn white
-- **Wrong characters** turn red -backspace to fix
+- **Wrong characters** turn red -- backspace to fix
 - **Extra characters** beyond word length show in faded red
 - **Skipped characters** (pressing space early) count as errors
 - **Missed words** in past lines get underlined in red
 
-### Test Modes
-
-| Mode | Options | How it Ends |
-|------|---------|-------------|
-| **Time** | 15s, 30s, 60s, 120s | Timer runs out |
-| **Words** | 10, 25, 50, 100 | All words typed |
-| **Quote** | Short, Medium, Long | Full quote typed |
-
 ### Post-Test Results
-
-After the test completes you get:
 
 | Stat | Description |
 |------|-------------|
@@ -171,6 +207,15 @@ After the test completes you get:
 | **Consistency** | How steady your speed was throughout the test |
 | **Characters** | Correct / Incorrect / Missed / Total |
 | **Chart** | WPM over time with raw WPM overlay and error markers |
+
+### History
+
+Click **History** in the top-right to view:
+
+- Best WPM, Average WPM, Best Accuracy, Average Accuracy, Total Tests
+- Performance chart showing WPM and accuracy trends over time
+- Paginated table with WPM, raw WPM, accuracy, consistency, mode, language, duration and date
+- Up to 200 tests stored locally in your browser
 
 ---
 
@@ -185,9 +230,37 @@ After the test completes you get:
 | Spanish | 391 |
 | Italian | 366 |
 | Portuguese | 343 |
-| **Total** | **3,424** |
+| Japanese (romaji) | ~200 |
+| Korean (romanized) | ~200 |
+| Chinese (pinyin) | ~200 |
+| Arabic (romanized) | ~200 |
+| Russian (romanized) | ~200 |
+| **Total** | **~4,400** |
 
-Every language includes common vocabulary plus extended everyday words. All languages support punctuation injection and random number insertion.
+All languages support three difficulty levels: Easy (top 200 common words), Medium (full pool) and Hard (6+ character words).
+
+---
+
+## Code Languages
+
+| Language | Snippets |
+|----------|----------|
+| JavaScript | 12 |
+| Python | 11 |
+| TypeScript | 9 |
+| Go | 10 |
+| Rust | 10 |
+| Java | 8 |
+| C# | 8 |
+| C++ | 8 |
+| Ruby | 8 |
+| PHP | 8 |
+| Swift | 8 |
+| Kotlin | 8 |
+| SQL | 8 |
+| HTML | 7 |
+| CSS | 7 |
+| Bash | 8 |
 
 ---
 
@@ -195,7 +268,7 @@ Every language includes common vocabulary plus extended everyday words. All lang
 
 | Shortcut | Action |
 |----------|--------|
-| `esc` | Restart test |
+| `esc` | Restart test (end session in Zen mode) |
 | `tab` + `enter` | Restart test |
 
 ---
