@@ -182,6 +182,16 @@ export default function History({ onBack }) {
           </div>
         </>
       )}
+
+      {/* Branding */}
+      <div className="text-center py-8 text-[11px]" style={{ color: 'var(--t-sub)' }}>
+        <span>Made in 🇮🇳 with ❤️ by </span>
+        <a href="https://mohitbagri-portfolio.vercel.app" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">MOHIT BAGRI</a>
+        <span className="mx-2">|</span>
+        <a href="https://github.com/Mohit-Bagri/velotype" target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: 'var(--t-sub)' }}>
+          ⭐ Star on GitHub
+        </a>
+      </div>
     </motion.div>
   )
 }

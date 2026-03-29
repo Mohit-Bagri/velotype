@@ -294,6 +294,12 @@ All languages support three difficulty levels: Easy (top 200 common words), Medi
 
 ---
 
+## License
+
+MIT License -- see [LICENSE](LICENSE)
+
+---
+
 <div align="center">
 
 Made in 🇮🇳 with ❤️ by [Mohit Bagri](https://mohitbagri-portfolio.vercel.app)
