@@ -75,7 +75,7 @@ export default function Header({
         {/* Floating centered navbar */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
           <nav className="velotype-nav" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 2, flexWrap: 'nowrap', justifyContent: 'center',
+            display: 'inline-flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', justifyContent: 'center',
             padding: '8px 16px', borderRadius: 16,
             background: 'var(--t-nav-bg)', border: '1px solid var(--t-nav-border)',
             boxShadow: '0 8px 32px -8px rgba(0,0,0,0.4), inset 0 1px 0 0 rgba(255,255,255,0.04)',
@@ -112,7 +112,7 @@ export default function Header({
       </motion.div>
 
       {/* ═══ SIDE DRAWER — slides from right, never overlaps content ═══ */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {drawer && (
           <>
             {/* Backdrop */}

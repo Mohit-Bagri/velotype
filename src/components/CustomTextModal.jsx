@@ -1,8 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function CustomTextModal({ open, onClose, onSubmit }) {
   const [text, setText] = useState('')
+  const textareaRef = useRef(null)
+
+  // Focus textarea when modal opens, with a delay to ensure it's mounted
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => textareaRef.current?.focus(), 100)
+    }
+  }, [open])
+
+  // Close on ESC
+  useEffect(() => {
+    if (!open) return
+    const handler = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handler, true)
+    return () => window.removeEventListener('keydown', handler, true)
+  }, [open, onClose])
 
   const handleSubmit = () => {
     const words = text.trim().split(/\s+/).filter(Boolean)
@@ -22,11 +44,15 @@ export default function CustomTextModal({ open, onClose, onSubmit }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[10000] flex items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+          className="fixed inset-0 flex items-center justify-center"
+          style={{ zIndex: 99999, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           onClick={onClose}
         >
-          <div
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.15 }}
             className="w-[90vw] max-w-[600px] rounded-2xl"
             style={{
               background: 'var(--t-bg)',
@@ -40,15 +66,18 @@ export default function CustomTextModal({ open, onClose, onSubmit }) {
               <p className="text-[11px] mb-5" style={{ color: 'var(--t-sub)' }}>Paste or type your own text to practice</p>
 
               <textarea
+                ref={textareaRef}
                 value={text}
                 onChange={e => setText(e.target.value)}
+                onKeyDown={e => e.stopPropagation()}
                 placeholder="Paste your text here..."
-                autoFocus
                 className="w-full h-40 rounded-xl p-4 text-[13px] outline-none resize-none font-mono"
                 style={{
                   background: 'var(--t-glass)',
                   border: '1px solid var(--t-glass-border)',
                   color: 'var(--t-text)',
+                  position: 'relative',
+                  zIndex: 1,
                 }}
               />
 
@@ -58,24 +87,24 @@ export default function CustomTextModal({ open, onClose, onSubmit }) {
                 </span>
                 <div className="flex gap-3">
                   <button
-                    onClick={onClose}
+                    onClick={(e) => { e.stopPropagation(); onClose() }}
                     className="px-5 py-2.5 rounded-lg text-[13px] cursor-pointer transition-colors"
-                    style={{ color: 'var(--t-sub)' }}
+                    style={{ color: 'var(--t-sub)', background: 'none', border: 'none' }}
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={handleSubmit}
+                    onClick={(e) => { e.stopPropagation(); handleSubmit() }}
                     disabled={wordCount === 0}
                     className="px-6 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                    style={{ background: 'var(--t-accent)', color: '#fff' }}
+                    style={{ background: 'var(--t-accent)', color: '#fff', border: 'none' }}
                   >
                     Start
                   </button>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
