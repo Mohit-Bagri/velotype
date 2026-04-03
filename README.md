@@ -29,6 +29,7 @@
 
 - [About](#about)
 - [Features](#features)
+- [Advanced Features](#advanced-features)
 - [Test Modes](#test-modes)
 - [Themes](#themes)
 - [Tech Stack](#tech-stack)
@@ -62,7 +63,7 @@ All processing happens locally in the browser -- no accounts, no servers, no tra
 | **Smooth Caret** | Animated caret that glides between characters |
 | **Live WPM** | Real-time words-per-minute counter while typing |
 | **Performance Chart** | Post-test graph with WPM curve, raw WPM and error markers |
-| **Detailed Stats** | WPM, accuracy, raw WPM, consistency, character breakdown |
+| **Detailed Stats** | WPM, accuracy, raw WPM, consistency, burst speed, keypress timing |
 | **History Page** | Track up to 200 tests with WPM/accuracy charts and pagination |
 | **Punctuation & Numbers** | Toggle punctuation marks and random numbers |
 | **Sound Effects** | Mechanical keyboard sounds for typing, errors, space and backspace |
@@ -72,6 +73,27 @@ All processing happens locally in the browser -- no accounts, no servers, no tra
 | **Zen Mode** | Infinite typing with no timer, press esc to end |
 | **Responsive** | Works on desktop, tablet and mobile |
 | **Accessible** | Keyboard navigation, ARIA roles, reduced motion support |
+
+---
+
+## Advanced Features
+
+| Feature | Description |
+|---------|-------------|
+| **Stop on Error** | Letter: can't type past a wrong character. Word: must fix word before pressing space |
+| **Confidence Mode** | On: backspace disabled. Max: backspace disabled + must complete word correctly |
+| **Blind Mode** | No green/red feedback — characters stay untyped color |
+| **Freedom Mode** | Backspace at start of a word jumps back to previous word |
+| **Strict Space** | Space blocked unless every character in the word is typed correctly |
+| **Pace Caret** | Ghost caret that moves at your target WPM as a visual pacer |
+| **Min WPM** | Test auto-fails if speed drops below threshold |
+| **Min Accuracy** | Test auto-fails if accuracy drops below threshold |
+| **Burst Speed** | Per-word speed tracking with avg/min/max in results |
+| **Keypress Timing** | Average keypress interval and standard deviation in results |
+| **Personal Best** | Crown banner when you beat your all-time best WPM |
+| **Font Size** | 4 sizes to adjust typing text (small, default, large, extra large) |
+| **WPM / CPM** | Toggle between words per minute and characters per minute |
+| **Funbox Modifiers** | rAnDoMcAsE, backwards words, ALL CAPS, mirror display |
 
 ---
 
@@ -128,23 +150,22 @@ velotype/
 │   └── favicon.svg
 ├── src/
 │   ├── components/
-│   │   ├── ModeBar.jsx            # Test mode selector navbar
-│   │   ├── TypingArea.jsx         # Word display, smooth caret, character coloring
-│   │   ├── Timer.jsx              # Countdown, elapsed time, live WPM
-│   │   ├── Results.jsx            # Post-test stats + performance chart
-│   │   ├── ThemePicker.jsx        # Theme selection dropdown
-│   │   ├── CustomTextModal.jsx    # Custom text paste modal
-│   │   └── History.jsx            # History page with charts + table
+│   │   ├── Header.jsx              # Floating navbar with side drawer menus
+│   │   ├── TypingArea.jsx           # Word display, smooth caret, blind mode, pace caret
+│   │   ├── Timer.jsx                # Countdown, elapsed time, live WPM/CPM
+│   │   ├── Results.jsx              # Post-test stats, chart, PB detection, glass cards
+│   │   ├── CustomTextModal.jsx      # Custom text paste modal
+│   │   └── History.jsx              # History page with charts, table, pagination
 │   ├── data/
-│   │   ├── words.js               # 3,400+ words across 12 languages
-│   │   ├── quotes.js              # 100 curated quotes (short/medium/long)
-│   │   └── codeSnippets.js        # 165+ code snippets for 16 languages
+│   │   ├── words.js                 # 4,400+ words across 12 languages
+│   │   ├── quotes.js                # 100 curated quotes (short/medium/long)
+│   │   └── codeSnippets.js          # 165+ code snippets for 16 languages
 │   ├── hooks/
-│   │   ├── useTypingTest.js       # Core typing engine (state, WPM, anti-cheat)
-│   │   └── useSound.js            # Keyboard sound effects
-│   ├── App.jsx                    # Main app layout + state management
-│   ├── index.css                  # 9 themes, responsive styles, accessibility
-│   └── main.jsx                   # Entry point
+│   │   ├── useTypingTest.js         # Core typing engine (state, WPM, anti-cheat, advanced modes)
+│   │   └── useSound.js              # Keyboard sound effects
+│   ├── App.jsx                      # Main app layout, state management, error boundary
+│   ├── index.css                    # 9 themes, responsive styles, accessibility
+│   └── main.jsx                     # Entry point with error boundary
 ├── index.html
 ├── vite.config.js
 ├── eslint.config.js
@@ -197,6 +218,16 @@ Type the displayed words as fast and accurately as you can:
 - **Skipped characters** (pressing space early) count as errors
 - **Missed words** in past lines get underlined in red
 
+### Navigation
+
+The floating navbar below the VELOTYPE logo provides access to all settings through side drawer panels:
+
+- **Mode** -- Select test mode and configure duration/word count/language
+- **Options** -- Toggle punctuation, numbers, language, difficulty, funbox modifiers
+- **Settings** -- Configure advanced behavior, challenge thresholds, display options
+
+All settings include detailed descriptions visible in the drawer panel.
+
 ### Post-Test Results
 
 | Stat | Description |
@@ -205,12 +236,16 @@ Type the displayed words as fast and accurately as you can:
 | **Accuracy** | Percentage of correct keystrokes |
 | **Raw WPM** | Total characters / 5 / minutes (including errors) |
 | **Consistency** | How steady your speed was throughout the test |
-| **Characters** | Correct / Incorrect / Missed / Total |
+| **Burst** | Average per-word typing speed with min-max range |
+| **Characters** | Correct / Incorrect / Missed / Total (hover for details) |
+| **Key Spacing** | Average time between keystrokes in milliseconds |
+| **Key Deviation** | Standard deviation of keypress intervals |
 | **Chart** | WPM over time with raw WPM overlay and error markers |
+| **Personal Best** | Crown banner when you beat your all-time record |
 
 ### History
 
-Click **History** in the top-right to view:
+Click the clock icon in the navbar to view:
 
 - Best WPM, Average WPM, Best Accuracy, Average Accuracy, Total Tests
 - Performance chart showing WPM and accuracy trends over time
@@ -279,7 +314,6 @@ All languages support three difficulty levels: Easy (top 200 common words), Medi
 | Shortcut | Action |
 |----------|--------|
 | `esc` | Restart test (end session in Zen mode) |
-| `tab` + `enter` | Restart test |
 
 ---
 
