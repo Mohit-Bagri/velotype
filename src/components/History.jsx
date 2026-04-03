@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -31,6 +31,7 @@ export default function History({ onBack }) {
   const c = useThemeColors()
   const [history, setHistory] = useState([])
   const [page, setPage] = useState(0)
+  const [confirmClear, setConfirmClear] = useState(false)
 
   useEffect(() => {
     const h = JSON.parse(localStorage.getItem('velotype-history') || '[]')
@@ -157,11 +158,23 @@ export default function History({ onBack }) {
 
           {/* Clear */}
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
-            <button onClick={() => { localStorage.removeItem('velotype-history'); setHistory([]); setPage(0) }}
-              style={{ fontSize: 11, cursor: 'pointer', color: 'var(--t-sub)', background: 'none', border: 'none', transition: 'color 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--t-error)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
-            >Clear history</button>
+            {confirmClear ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                <span style={{ fontSize: 11, color: 'var(--t-error)' }}>Delete all history?</span>
+                <button onClick={() => { localStorage.removeItem('velotype-history'); setHistory([]); setPage(0); setConfirmClear(false) }}
+                  style={{ fontSize: 11, cursor: 'pointer', color: '#fff', background: 'var(--t-error)', border: 'none', borderRadius: 6, padding: '4px 12px', fontWeight: 600 }}
+                >Yes, clear</button>
+                <button onClick={() => setConfirmClear(false)}
+                  style={{ fontSize: 11, cursor: 'pointer', color: 'var(--t-sub)', background: 'none', border: '1px solid var(--t-glass-border)', borderRadius: 6, padding: '4px 12px' }}
+                >Cancel</button>
+              </div>
+            ) : (
+              <button onClick={() => setConfirmClear(true)}
+                style={{ fontSize: 11, cursor: 'pointer', color: 'var(--t-sub)', background: 'none', border: 'none', transition: 'color 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--t-error)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--t-sub)'}
+              >Clear history</button>
+            )}
           </div>
         </>
       )}

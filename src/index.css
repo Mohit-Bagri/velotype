@@ -452,6 +452,33 @@ body {
 .settings-scroll::-webkit-scrollbar-track { background: transparent; }
 .settings-scroll::-webkit-scrollbar-thumb { background: var(--t-dim); border-radius: 2px; }
 
+/* Mobile nav responsiveness */
+@media (max-width: 480px) {
+  .velotype-nav {
+    padding: 6px 8px !important;
+    gap: 1px !important;
+  }
+  .velotype-nav button {
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+  }
+  .velotype-nav .nav-chevron {
+    display: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -9,6 +9,27 @@ import History from './components/History'
 import { useTypingTest } from './hooks/useTypingTest'
 import { useSound } from './hooks/useSound'
 
+const SETTINGS_KEY = 'velotype-settings'
+
+function loadSettings() {
+  try {
+    return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}
+  } catch { return {} }
+}
+
+function useSetting(key, defaultVal) {
+  const [value, setValue] = useState(() => {
+    const saved = loadSettings()[key]
+    return saved !== undefined ? saved : defaultVal
+  })
+  useEffect(() => {
+    const s = loadSettings()
+    s[key] = value
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(s))
+  }, [key, value])
+  return [value, setValue]
+}
+
 const LOGO = [
   '██╗   ██╗███████╗██╗      ██████╗ ████████╗██╗   ██╗██████╗ ███████╗',
   '██║   ██║██╔════╝██║     ██╔═══██╗╚══██╔══╝╚██╗ ██╔╝██╔══██╗██╔════╝',
@@ -19,33 +40,33 @@ const LOGO = [
 ].join('\n')
 
 function App() {
-  // ── Core test settings ──
-  const [mode, setMode] = useState('time')
-  const [duration, setDuration] = useState(15)
-  const [wordCount, setWordCount] = useState(25)
-  const [punctuation, setPunctuation] = useState(false)
-  const [numbers, setNumbers] = useState(false)
-  const [language, setLanguage] = useState('english')
-  const [quoteLength, setQuoteLength] = useState('short')
-  const [difficulty, setDifficulty] = useState('medium')
-  const [codeLanguage, setCodeLanguage] = useState('javascript')
+  // ── Core test settings (persisted) ──
+  const [mode, setMode] = useSetting('mode', 'time')
+  const [duration, setDuration] = useSetting('duration', 15)
+  const [wordCount, setWordCount] = useSetting('wordCount', 25)
+  const [punctuation, setPunctuation] = useSetting('punctuation', false)
+  const [numbers, setNumbers] = useSetting('numbers', false)
+  const [language, setLanguage] = useSetting('language', 'english')
+  const [quoteLength, setQuoteLength] = useSetting('quoteLength', 'short')
+  const [difficulty, setDifficulty] = useSetting('difficulty', 'medium')
+  const [codeLanguage, setCodeLanguage] = useSetting('codeLanguage', 'javascript')
   const [customWords, setCustomWords] = useState(null)
   const [customTextOpen, setCustomTextOpen] = useState(false)
   const [view, setView] = useState('test')
 
-  // ── Advanced settings ──
-  const [stopOnError, setStopOnError] = useState('off')
-  const [confidenceMode, setConfidenceMode] = useState('off')
-  const [blindMode, setBlindMode] = useState(false)
-  const [freedomMode, setFreedomMode] = useState(false)
-  const [strictSpace, setStrictSpace] = useState(false)
-  const [fontSize, setFontSize] = useState(2)
-  const [speedUnit, setSpeedUnit] = useState('wpm')
-  const [paceCaretEnabled, setPaceCaretEnabled] = useState(false)
-  const [paceCaretSpeed, setPaceCaretSpeed] = useState(60)
-  const [minWpm, setMinWpm] = useState(0)
-  const [minAccuracy, setMinAccuracy] = useState(0)
-  const [funbox, setFunbox] = useState('none')
+  // ── Advanced settings (persisted) ──
+  const [stopOnError, setStopOnError] = useSetting('stopOnError', 'off')
+  const [confidenceMode, setConfidenceMode] = useSetting('confidenceMode', 'off')
+  const [blindMode, setBlindMode] = useSetting('blindMode', false)
+  const [freedomMode, setFreedomMode] = useSetting('freedomMode', false)
+  const [strictSpace, setStrictSpace] = useSetting('strictSpace', false)
+  const [fontSize, setFontSize] = useSetting('fontSize', 2)
+  const [speedUnit, setSpeedUnit] = useSetting('speedUnit', 'wpm')
+  const [paceCaretEnabled, setPaceCaretEnabled] = useSetting('paceCaretEnabled', false)
+  const [paceCaretSpeed, setPaceCaretSpeed] = useSetting('paceCaretSpeed', 60)
+  const [minWpm, setMinWpm] = useSetting('minWpm', 0)
+  const [minAccuracy, setMinAccuracy] = useSetting('minAccuracy', 0)
+  const [funbox, setFunbox] = useSetting('funbox', 'none')
 
   // ── Sound & theme ──
   const [soundEnabled, setSoundEnabled] = useState(() => {
@@ -170,7 +191,8 @@ function App() {
             transition={{ duration: 0.25 }}
             className="flex justify-center mb-4"
           >
-            <pre className="ascii-glow select-none text-left">{LOGO}</pre>
+            <h1 className="sr-only">VeloType - Typing Speed Test</h1>
+            <pre className="ascii-glow select-none text-left" aria-hidden="true">{LOGO}</pre>
           </motion.div>
 
           {/* Floating navbar — centered below logo */}
@@ -240,6 +262,7 @@ function App() {
                 paceCaretSpeed={paceCaretSpeed}
                 startTime={startTime}
                 funbox={funbox}
+                disabled={customTextOpen}
               />
               {/* Tip */}
               <motion.div

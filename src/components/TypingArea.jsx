@@ -27,7 +27,7 @@ function getColors() {
 export default function TypingArea({
   words, currentWordIndex, currentCharIndex, typed, status, onKeyDown,
   blindMode = false, fontSize = 2, paceCaretEnabled = false, paceCaretSpeed = 60,
-  startTime, funbox = 'none',
+  startTime, funbox = 'none', disabled = false,
 }) {
   const fontConfig = FONT_SIZES[fontSize] || FONT_SIZES[2]
   const LINE_HEIGHT = fontConfig.lineHeight
@@ -185,10 +185,10 @@ export default function TypingArea({
   }, [])
 
   useEffect(() => {
-    if (status !== 'finished' && status !== 'failed') {
+    if (status !== 'finished' && status !== 'failed' && !disabled) {
       requestAnimationFrame(focus)
     }
-  }, [status, words, focus])
+  }, [status, words, focus, disabled])
 
   // Detect caps lock
   useEffect(() => {

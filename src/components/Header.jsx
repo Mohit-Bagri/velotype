@@ -54,6 +54,17 @@ export default function Header({
   const [drawer, setDrawer] = useState(null)
   const toggle = (name) => setDrawer(prev => prev === name ? null : name)
 
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && drawer) {
+        e.stopPropagation()
+        setDrawer(null)
+      }
+    }
+    document.addEventListener('keydown', handleEsc, true)
+    return () => document.removeEventListener('keydown', handleEsc, true)
+  }, [drawer])
+
   return (
     <>
       <motion.div
@@ -63,8 +74,8 @@ export default function Header({
       >
         {/* Floating centered navbar */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
-          <nav style={{
-            display: 'inline-flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', justifyContent: 'center',
+          <nav className="velotype-nav" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 2, flexWrap: 'nowrap', justifyContent: 'center',
             padding: '8px 16px', borderRadius: 16,
             background: 'var(--t-nav-bg)', border: '1px solid var(--t-nav-border)',
             boxShadow: '0 8px 32px -8px rgba(0,0,0,0.4), inset 0 1px 0 0 rgba(255,255,255,0.04)',
@@ -205,10 +216,10 @@ export default function Header({
 
                     <Label>Challenge</Label>
                     <div style={{ ...cardStyle, marginBottom: 20 }}>
-                      <Row label="Min WPM" tip="Test auto-fails if your speed drops below this threshold after 5 seconds."><NumInput value={minWpm} onChange={setMinWpm} placeholder="off" /></Row>
-                      <Row label="Min accuracy" tip="Test auto-fails if your accuracy drops below this percentage."><NumInput value={minAccuracy} onChange={setMinAccuracy} placeholder="off" suffix="%" /></Row>
+                      <Row label="Min WPM" tip="Test auto-fails if your speed drops below this threshold after 5 seconds."><NumInput value={minWpm} onChange={setMinWpm} placeholder="off" max={300} /></Row>
+                      <Row label="Min accuracy" tip="Test auto-fails if your accuracy drops below this percentage."><NumInput value={minAccuracy} onChange={setMinAccuracy} placeholder="off" suffix="%" max={100} /></Row>
                       <Row label="Pace caret" tip="A ghost caret that moves at your target speed — visual pacer to train toward a goal." last={!paceCaretEnabled}><Switch value={paceCaretEnabled} onChange={setPaceCaretEnabled} /></Row>
-                      {paceCaretEnabled && <Row label="Target WPM" tip="The speed (words per minute) at which the ghost pace caret moves." last><NumInput value={paceCaretSpeed} onChange={v => setPaceCaretSpeed(Math.max(10, v))} placeholder="60" min={10} /></Row>}
+                      {paceCaretEnabled && <Row label="Target WPM" tip="The speed (words per minute) at which the ghost pace caret moves." last><NumInput value={paceCaretSpeed} onChange={setPaceCaretSpeed} placeholder="60" min={10} max={300} /></Row>}
                     </div>
 
                     <Label>Display</Label>
@@ -281,7 +292,7 @@ function NavBtn({ label, onClick, active, disabled }) {
       onMouseLeave={e => { if (!active) e.currentTarget.style.color = 'var(--t-sub)' }}
     >
       {label}
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ opacity: 0.4 }}>
+      <svg className="nav-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ opacity: 0.4 }}>
         <path d="M9 6l6 6-6 6" />
       </svg>
     </button>
@@ -398,11 +409,16 @@ function Switch({ value, onChange }) {
   )
 }
 
-function NumInput({ value, onChange, placeholder, suffix, min = 0 }) {
+function NumInput({ value, onChange, placeholder, suffix, min = 0, max }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-      <input type="number" value={value || ''} placeholder={placeholder} min={min}
-        onChange={e => onChange(Math.max(min, parseInt(e.target.value) || 0))}
+      <input type="number" value={value || ''} placeholder={placeholder} min={min} max={max}
+        onChange={e => {
+          let v = parseInt(e.target.value) || 0
+          v = Math.max(min, v)
+          if (max !== undefined) v = Math.min(max, v)
+          onChange(v)
+        }}
         style={{
           width: 52, textAlign: 'right', background: 'var(--t-glass)', border: '1px solid var(--t-glass-border)',
           borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 500, outline: 'none',

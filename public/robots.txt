@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://velo-type.vercel.app/sitemap.xml
