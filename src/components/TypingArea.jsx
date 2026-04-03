@@ -1,6 +1,12 @@
 import { useRef, useEffect, useState, useLayoutEffect, useCallback } from 'react'
 
-const LINE_HEIGHT = 48
+const FONT_SIZES = {
+  1: { fontSize: '1.1rem', lineHeight: 38 },
+  2: { fontSize: '1.45rem', lineHeight: 48 },
+  3: { fontSize: '1.8rem', lineHeight: 58 },
+  4: { fontSize: '2.2rem', lineHeight: 68 },
+}
+
 const VISIBLE_LINES = 3
 const CARET_TRANSITION = 'transform 100ms cubic-bezier(0.17, 0.67, 0.5, 1), opacity 0.15s ease'
 
@@ -18,7 +24,14 @@ function getColors() {
   }
 }
 
-export default function TypingArea({ words, currentWordIndex, currentCharIndex, typed, status, onKeyDown }) {
+export default function TypingArea({
+  words, currentWordIndex, currentCharIndex, typed, status, onKeyDown,
+  blindMode = false, fontSize = 2, paceCaretEnabled = false, paceCaretSpeed = 60,
+  startTime, funbox = 'none',
+}) {
+  const fontConfig = FONT_SIZES[fontSize] || FONT_SIZES[2]
+  const LINE_HEIGHT = fontConfig.lineHeight
+
   const [colors, setColors] = useState(getColors)
 
   useEffect(() => {
@@ -43,6 +56,10 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
   const caretIdleRef = useRef(null)
   const [caretIdle, setCaretIdle] = useState(true)
 
+  // Pace caret state
+  const [pacePos, setPacePos] = useState(null)
+  const paceIntervalRef = useRef(null)
+
   // Scroll: keep current word visible
   useLayoutEffect(() => {
     const el = wordEls.current[currentWordIndex]
@@ -50,7 +67,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
     const line = Math.floor(el.offsetTop / LINE_HEIGHT)
     const target = Math.max(0, line * LINE_HEIGHT)
     setScrollY(prev => target >= prev ? target : prev)
-  }, [currentWordIndex])
+  }, [currentWordIndex, LINE_HEIGHT])
 
   // Reset on new words
   useEffect(() => {
@@ -58,6 +75,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
     charEls.current = {}
     skipTransitionRef.current = true
     setCaretVisible(false)
+    setPacePos(null)
     requestAnimationFrame(() => {
       setCaretVisible(true)
       requestAnimationFrame(() => { skipTransitionRef.current = false })
@@ -91,7 +109,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
       setCaretVisible(true)
     }
 
-    // Reset idle timer (caret stays solid while typing, pulses when idle)
+    // Reset idle timer
     setCaretIdle(false)
     clearTimeout(caretIdleRef.current)
     caretIdleRef.current = setTimeout(() => setCaretIdle(true), 500)
@@ -107,7 +125,58 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
       requestAnimationFrame(() => { skipTransitionRef.current = false })
     }
     prevYRef.current = caretPos.y
-  }, [caretPos.y])
+  }, [caretPos.y, LINE_HEIGHT])
+
+  // Pace caret logic
+  useEffect(() => {
+    clearInterval(paceIntervalRef.current)
+    if (!paceCaretEnabled || !paceCaretSpeed || status !== 'running' || !startTime?.current) {
+      setPacePos(null)
+      return
+    }
+
+    paceIntervalRef.current = setInterval(() => {
+      if (!startTime.current) return
+      const elMs = Date.now() - startTime.current
+      const elMin = elMs / 60000
+      const targetChars = paceCaretSpeed * 5 * elMin
+
+      // Convert char count to word/char position
+      let charsSoFar = 0
+      let targetWordIdx = 0
+      let targetCharIdx = 0
+      let found = false
+
+      for (let wi = 0; wi < words.length; wi++) {
+        const wordLen = words[wi].length + 1 // +1 for space
+        if (charsSoFar + wordLen > targetChars) {
+          targetWordIdx = wi
+          targetCharIdx = Math.min(Math.floor(targetChars - charsSoFar), words[wi].length)
+          found = true
+          break
+        }
+        charsSoFar += wordLen
+      }
+
+      if (!found) {
+        targetWordIdx = words.length - 1
+        targetCharIdx = words[words.length - 1]?.length || 0
+      }
+
+      // Get DOM position
+      let el = null
+      if (targetCharIdx === 0) {
+        el = charEls.current[`${targetWordIdx}-0`] || wordEls.current[targetWordIdx]
+        if (el) setPacePos({ x: el.offsetLeft, y: el.offsetTop })
+      } else {
+        const key = `${targetWordIdx}-${targetCharIdx - 1}`
+        el = charEls.current[key]
+        if (el) setPacePos({ x: el.offsetLeft + el.offsetWidth, y: el.offsetTop })
+      }
+    }, 50)
+
+    return () => clearInterval(paceIntervalRef.current)
+  }, [paceCaretEnabled, paceCaretSpeed, status, startTime, words])
 
   // Focus management
   const focus = useCallback(() => {
@@ -116,12 +185,12 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
   }, [])
 
   useEffect(() => {
-    if (status !== 'finished') {
+    if (status !== 'finished' && status !== 'failed') {
       requestAnimationFrame(focus)
     }
   }, [status, words, focus])
 
-  // Detect caps lock on any key event (keydown + keyup for instant detection)
+  // Detect caps lock
   useEffect(() => {
     const detectCaps = (e) => {
       if (e.getModifierState) setCapsLock(e.getModifierState('CapsLock'))
@@ -140,6 +209,8 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
     e.stopPropagation()
     onKeyDown(e)
   }, [onKeyDown])
+
+  const isMirror = funbox === 'mirror'
 
   return (
     <div
@@ -167,14 +238,14 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
           width: '100%',
           height: VISIBLE_LINES * LINE_HEIGHT,
           opacity: 0,
-          fontSize: '16px', // prevents iOS zoom on focus
+          fontSize: '16px',
           zIndex: 5,
           cursor: 'text',
         }}
       />
 
       {/* Caps lock warning */}
-      {capsLock && focused && status !== 'finished' && (
+      {capsLock && focused && status !== 'finished' && status !== 'failed' && (
         <div className="flex items-center justify-center gap-2 mb-2 py-1.5 px-4 rounded-full text-[11px] font-medium mx-auto w-fit" style={{ background: 'var(--t-accent-soft)', color: 'var(--t-warn, var(--t-accent))' }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
@@ -184,7 +255,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
       )}
 
       <div className="overflow-hidden relative" style={{ height: VISIBLE_LINES * LINE_HEIGHT }}>
-        {!focused && status !== 'finished' && (
+        {!focused && status !== 'finished' && status !== 'failed' && (
           <div className="absolute inset-0 z-[3] flex items-center justify-center backdrop-blur-sm rounded-xl" style={{ background: 'var(--t-unfocused-bg)' }}>
             <span className="text-sm" style={{ color: 'var(--t-sub)' }}>Click here to focus</span>
           </div>
@@ -194,17 +265,17 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
           ref={wordsRef}
           style={{
             position: 'relative',
-            fontSize: '1.45rem',
+            fontSize: fontConfig.fontSize,
             lineHeight: `${LINE_HEIGHT}px`,
             display: 'flex',
             flexWrap: 'wrap',
             gap: '0 12px',
-            transform: `translateY(${-scrollY}px)`,
-            transition: 'transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1)',
+            transform: `translateY(${-scrollY}px)${isMirror ? ' scaleX(-1)' : ''}`,
+            transition: 'transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1)',
           }}
         >
           {/* Smooth caret */}
-          {caretVisible && focused && status !== 'finished' && (
+          {caretVisible && focused && status !== 'finished' && status !== 'failed' && (
             <div
               className={caretIdle ? 'caret' : ''}
               style={{
@@ -220,6 +291,27 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                 zIndex: 2,
                 transform: `translate3d(${caretPos.x}px, ${caretPos.y}px, 0)`,
                 transition: skipTransitionRef.current ? 'none' : CARET_TRANSITION,
+                willChange: 'transform',
+              }}
+            />
+          )}
+
+          {/* Pace caret (ghost) */}
+          {paceCaretEnabled && pacePos && focused && status === 'running' && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: 2.5,
+                height: '1.3em',
+                background: colors.caret,
+                opacity: 0.25,
+                borderRadius: 2,
+                pointerEvents: 'none',
+                zIndex: 1,
+                transform: `translate3d(${pacePos.x}px, ${pacePos.y}px, 0)`,
+                transition: 'transform 80ms linear',
                 willChange: 'transform',
               }}
             />
@@ -252,7 +344,9 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                 {word.split('').map((char, ci) => {
                   const cd = wordTyped[ci]
                   let color = colors.untyped
-                  if (cd) color = cd.correct ? colors.correct : colors.error
+                  if (cd && !blindMode) {
+                    color = cd.correct ? colors.correct : colors.error
+                  }
 
                   return (
                     <span
@@ -265,7 +359,7 @@ export default function TypingArea({ words, currentWordIndex, currentCharIndex, 
                   )
                 })}
 
-                {Object.keys(wordTyped)
+                {!blindMode && Object.keys(wordTyped)
                   .map(Number)
                   .filter(idx => idx >= word.length)
                   .sort((a, b) => a - b)

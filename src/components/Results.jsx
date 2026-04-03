@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -29,18 +29,19 @@ function readColors() {
     tooltipBorder: v('--t-tooltip-border'),
     text: v('--t-text'),
     bgSurface: v('--t-bg'),
+    glass: v('--t-glass'),
+    glassBorder: v('--t-glass-border'),
   }
 }
+
+const glass = { background: 'var(--t-glass)', border: '1px solid var(--t-glass-border)', borderRadius: 16 }
 
 function ChartTooltip({ active, payload, label, colors }) {
   if (!active || !payload?.length) return null
   const c = colors || readColors()
   const d = payload[0]?.payload || {}
   return (
-    <div style={{
-      background: c.tooltipBg, border: `1px solid ${c.tooltipBorder}`,
-      borderRadius: 8, padding: '12px 16px', fontSize: 12, minWidth: 140,
-    }}>
+    <div style={{ background: c.tooltipBg, border: `1px solid ${c.tooltipBorder}`, borderRadius: 12, padding: '12px 16px', fontSize: 12, minWidth: 140, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}>
       <div style={{ color: c.text, fontWeight: 600, marginBottom: 8, fontSize: 13 }}>{label}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
         <TipRow color={c.err} label="errors" val={d.err || 0} textColor={c.sub} valColor={c.text} />
@@ -61,141 +62,182 @@ function TipRow({ color, label, val, textColor, valColor }) {
   )
 }
 
-export default function Results({ stats, duration, mode, language, punctuation, numbers, wordCount, difficulty }) {
+export default function Results({
+  stats, duration, mode, language, punctuation, numbers, wordCount, difficulty,
+  speedUnit = 'wpm', failReason,
+}) {
   const c = useThemeColors()
+
+  // ALL hooks must be called before any early return (Rules of Hooks)
+  const isPB = useMemo(() => {
+    if (!stats || failReason || stats.suspicious || !stats.wpm) return false
+    const history = JSON.parse(localStorage.getItem('velotype-history') || '[]')
+    if (history.length === 0) return true
+    const prevBest = Math.max(...history.map(h => h.wpm))
+    return stats.wpm > prevBest
+  }, [stats, failReason])
+
   if (!stats) return null
 
-  const data = stats.wpmHistory.map((wpm, i) => ({
-    t: i + 1, wpm, raw: stats.rawWpmHistory[i] || 0, err: stats.errorHistory[i] || 0,
+  const isCpm = speedUnit === 'cpm'
+  const displayWpm = isCpm ? stats.wpm * 5 : stats.wpm
+  const displayRawWpm = isCpm ? stats.rawWpm * 5 : stats.rawWpm
+  const unitLabel = isCpm ? 'cpm' : 'wpm'
+
+  const wpmHist = stats.wpmHistory || []
+  const rawHist = stats.rawWpmHistory || []
+  const errHist = stats.errorHistory || []
+
+  const data = wpmHist.map((wpm, i) => ({
+    t: i + 1,
+    wpm: isCpm ? wpm * 5 : wpm,
+    raw: isCpm ? (rawHist[i] || 0) * 5 : (rawHist[i] || 0),
+    err: errHist[i] || 0,
   }))
-  const maxWpm = Math.max(...data.map(d => Math.max(d.wpm, d.raw)), 10)
+  const maxWpm = data.length > 0 ? Math.max(...data.map(d => Math.max(d.wpm, d.raw)), 10) : 10
   const yMax = Math.ceil(maxWpm / 20) * 20 + 10
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="w-full"
-    >
-      {/* ── Top section: Stats left + Chart right ── */}
-      <div className="flex flex-col md:flex-row gap-6 md:gap-8 mb-6">
-        {/* Left stats column */}
-        <div className="flex md:flex-col justify-center gap-8 md:gap-0 shrink-0 md:min-w-[160px]">
-          <div className="md:mb-8">
-            <div className="text-[11px] uppercase tracking-[0.2em] mb-2" style={{ color: c.sub }}>wpm</div>
-            <div className="text-[2.5rem] md:text-[3.5rem] font-bold leading-none tabular-nums text-accent">{stats.wpm}</div>
-          </div>
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.2em] mb-2" style={{ color: c.sub }}>acc</div>
-            <div className="text-[2.5rem] md:text-[3.5rem] font-bold leading-none tabular-nums text-accent">{stats.accuracy}%</div>
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="w-full">
+      {/* Banners */}
+      {failReason && (
+        <div style={{ textAlign: 'center', marginBottom: 24, padding: '14px 24px', borderRadius: 14, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: c.err }}>Test Failed</div>
+          <div style={{ fontSize: 11, marginTop: 4, color: c.sub }}>{failReason}</div>
+        </div>
+      )}
+      {isPB && !failReason && (
+        <div style={{ textAlign: 'center', marginBottom: 24, padding: '14px 24px', borderRadius: 14, background: 'var(--t-accent-soft)', border: '1px solid var(--t-accent)' }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--t-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <span style={{ fontSize: 20 }}>&#x1F451;</span> New Personal Best!
           </div>
         </div>
+      )}
 
-        {/* Chart with axis labels */}
-        <div className="flex-1 min-w-0 flex">
-          {/* Left axis label */}
-          <div className="flex items-center justify-center shrink-0" style={{ width: 14, marginRight: -2 }}>
-            <div className="text-[8px] uppercase tracking-[0.1em] whitespace-nowrap" style={{ color: c.sub, writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
-              Words per Minute
+      {/* ── Main: Stats + Chart ── */}
+      <div style={{ ...glass, padding: 24, marginBottom: 20 }}>
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+          {/* Left stats */}
+          <div className="flex md:flex-col justify-center gap-8 md:gap-0 shrink-0 md:min-w-[140px]">
+            <div className="md:mb-6">
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 6, color: c.sub }}>{unitLabel}</div>
+              <div style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: 'var(--t-accent)' }}>{displayWpm}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 6, color: c.sub }}>acc</div>
+              <div style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: 'var(--t-accent)' }}>{stats.accuracy}%</div>
             </div>
           </div>
 
           {/* Chart */}
-          <div className="flex-1 min-w-0">
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 20 }}>
-                <defs>
-                  <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={c.accent} stopOpacity={0.15} />
-                    <stop offset="100%" stopColor={c.accent} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke={c.grid} vertical={false} />
-                <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} label={{ value: 'Seconds', position: 'insideBottom', offset: -5, style: { fontSize: 9, fill: c.sub, textTransform: 'uppercase', letterSpacing: '0.12em' } }} />
-                <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={35} domain={[0, yMax]} allowDecimals={false} />
-                <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 11, fill: c.sub }} tickLine={false} axisLine={false} width={30} allowDecimals={false} />
-              <Tooltip content={<ChartTooltip colors={c} />} cursor={{ stroke: c.dim, strokeWidth: 1 }} />
-              <Area yAxisId="w" type="monotone" dataKey="wpm" name="WPM" stroke={c.accent} strokeWidth={2} fill="url(#wg)" dot={false} activeDot={{ r: 4, fill: c.accent, stroke: c.bgSurface, strokeWidth: 2 }} />
-              <Line yAxisId="w" type="monotone" dataKey="raw" name="Raw" stroke={c.raw} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-              <Line yAxisId="e" type="stepAfter" dataKey="err" name="Errors" stroke="transparent" dot={p => {
-                if (!p.payload || p.payload.err <= 0) return null
-                return <svg key={p.index} x={p.cx-5} y={p.cy-6} width={10} height={12}><text x={5} y={10} textAnchor="middle" fill={c.err} fontSize={11} fontWeight="bold">x</text></svg>
-              }} />
-            </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Right axis label */}
-          <div className="flex items-center justify-center shrink-0" style={{ width: 14, marginLeft: -2 }}>
-            <div className="text-[8px] uppercase tracking-[0.1em] whitespace-nowrap" style={{ color: c.sub, writingMode: 'vertical-rl' }}>
-              Errors
+          <div className="flex-1 min-w-0 flex">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 16, flexShrink: 0, marginRight: -2, alignSelf: 'stretch' }}>
+              <div style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap', color: c.sub, writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+                {isCpm ? 'Chars per Min' : 'Words per Min'}
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 20 }}>
+                  <defs>
+                    <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={c.accent} stopOpacity={0.15} />
+                      <stop offset="100%" stopColor={c.accent} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid stroke={c.grid} vertical={false} />
+                  <XAxis dataKey="t" stroke="transparent" tick={{ fontSize: 10, fill: c.sub }} tickLine={false} axisLine={false} label={{ value: 'Seconds', position: 'insideBottom', offset: -5, style: { fontSize: 8, fill: c.sub, textTransform: 'uppercase', letterSpacing: '0.12em' } }} />
+                  <YAxis yAxisId="w" stroke="transparent" tick={{ fontSize: 10, fill: c.sub }} tickLine={false} axisLine={false} width={30} domain={[0, yMax]} allowDecimals={false} />
+                  <YAxis yAxisId="e" orientation="right" stroke="transparent" tick={{ fontSize: 10, fill: c.sub }} tickLine={false} axisLine={false} width={25} allowDecimals={false} />
+                  <Tooltip content={<ChartTooltip colors={c} />} cursor={{ stroke: c.divider, strokeWidth: 1 }} />
+                  <Area yAxisId="w" type="monotone" dataKey="wpm" stroke={c.accent} strokeWidth={2} fill="url(#wg)" dot={false} activeDot={{ r: 4, fill: c.accent, stroke: c.bgSurface, strokeWidth: 2 }} />
+                  <Line yAxisId="w" type="monotone" dataKey="raw" stroke={c.raw} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+                  <Line yAxisId="e" type="stepAfter" dataKey="err" stroke="transparent" dot={p => {
+                    if (!p.payload || p.payload.err <= 0) return null
+                    return <svg key={p.index} x={p.cx-5} y={p.cy-6} width={10} height={12}><text x={5} y={10} textAnchor="middle" fill={c.err} fontSize={11} fontWeight="bold">x</text></svg>
+                  }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex items-center justify-center shrink-0" style={{ width: 14, marginLeft: -2 }}>
+              <div style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap', color: c.sub, writingMode: 'vertical-rl' }}>Errors</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="h-px mt-10" style={{ background: c.divider }} />
-
-      {/* ── Details row ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 pt-8 pb-8 px-2">
-        <DetailBlock label="test type" subColor={c.sub}>
-          <div className="text-accent leading-relaxed">
+      {/* ── Details grid ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12, marginBottom: 20 }}>
+        <StatCard label="test type" c={c}>
+          <div style={{ color: 'var(--t-accent)', fontSize: 14, fontWeight: 600 }}>
             {mode}{mode === 'time' ? ` ${duration}s` : mode === 'words' ? ` ${wordCount}` : ''}
           </div>
-          <div className="text-[13px] leading-relaxed" style={{ color: c.sub }}>
+          <div style={{ color: c.sub, fontSize: 11, marginTop: 2 }}>
             {mode !== 'custom' && mode !== 'code' && language}
             {mode !== 'quote' && mode !== 'custom' && mode !== 'code' && ` ${difficulty}`}
-            {mode !== 'quote' && mode !== 'custom' && punctuation && ' punctuation'}
-            {mode !== 'quote' && mode !== 'custom' && numbers && ' numbers'}
           </div>
-        </DetailBlock>
-        <DetailBlock label="raw" subColor={c.sub}>
-          <span className="text-text">{stats.rawWpm}</span>
-        </DetailBlock>
-        <DetailBlock label="characters" center subColor={c.sub}>
-          <div className="flex items-center justify-center gap-1">
-            <span style={{ color: c.correct }}>{stats.correct}</span>
-            <span style={{ color: c.dim }}>/</span>
-            <span style={{ color: c.err }}>{stats.incorrect}</span>
-            <span style={{ color: c.dim }}>/</span>
-            <span style={{ color: c.sub }}>{stats.missed}</span>
-            <span style={{ color: c.dim }}>/</span>
-            <span style={{ color: c.sub }}>{stats.totalChars}</span>
+        </StatCard>
+        <StatCard label={`raw ${unitLabel}`} c={c}>
+          <span style={{ color: 'var(--t-text)', fontSize: 18, fontWeight: 600 }}>{displayRawWpm}</span>
+        </StatCard>
+        <StatCard label="characters" c={c}>
+          <div title={`${stats.correct} correct / ${stats.incorrect} incorrect / ${stats.missed} missed / ${stats.totalChars} total`}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: 14, fontWeight: 600, cursor: 'help' }}>
+            <span title="Correct" style={{ color: c.correct }}>{stats.correct}</span>
+            <span style={{ color: c.sub, opacity: 0.4 }}>/</span>
+            <span title="Incorrect" style={{ color: c.err }}>{stats.incorrect}</span>
+            <span style={{ color: c.sub, opacity: 0.4 }}>/</span>
+            <span title="Missed" style={{ color: c.sub }}>{stats.missed}</span>
+            <span style={{ color: c.sub, opacity: 0.4 }}>/</span>
+            <span title="Total" style={{ color: c.sub }}>{stats.totalChars}</span>
           </div>
-          <div className="flex items-center justify-center gap-1 text-[9px] mt-1" style={{ color: c.sub }}>
-            <span>correct</span>
-            <span>/</span>
-            <span>incorrect</span>
-            <span>/</span>
-            <span>missed</span>
-            <span>/</span>
-            <span>total</span>
+          <div style={{ fontSize: 9, marginTop: 4, color: c.sub, opacity: 0.5, textAlign: 'center' }}>
+            hover for details
           </div>
-        </DetailBlock>
-        <DetailBlock label="consistency" center subColor={c.sub}>
-          <span className="text-text">{stats.consistency}%</span>
-        </DetailBlock>
-        <DetailBlock label="time" right subColor={c.sub}>
-          <span className="text-text">{stats.elapsedSeconds || duration}s</span>
-        </DetailBlock>
+        </StatCard>
+        <StatCard label="consistency" c={c}>
+          <span style={{ color: 'var(--t-text)', fontSize: 18, fontWeight: 600 }}>{stats.consistency}%</span>
+        </StatCard>
+        <StatCard label="burst" c={c}>
+          <span style={{ color: 'var(--t-text)', fontSize: 18, fontWeight: 600 }}>{isCpm ? stats.avgBurst * 5 : stats.avgBurst}</span>
+          {stats.maxBurst > 0 && <div style={{ fontSize: 10, color: c.sub, marginTop: 2 }}>{isCpm ? stats.minBurst * 5 : stats.minBurst}–{isCpm ? stats.maxBurst * 5 : stats.maxBurst}</div>}
+        </StatCard>
+        <StatCard label="time" c={c}>
+          <span style={{ color: 'var(--t-text)', fontSize: 18, fontWeight: 600 }}>{stats.elapsedSeconds || duration}s</span>
+        </StatCard>
       </div>
 
-      {/* ── Tip ── */}
-      <div className="text-center mt-6">
+      {/* ── Keypress timing ── */}
+      {stats.avgKeypressTime > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, maxWidth: 300, margin: '0 auto 20px' }}>
+          <StatCard label="key spacing" c={c}>
+            <span style={{ color: 'var(--t-text)', fontSize: 16, fontWeight: 600 }}>{stats.avgKeypressTime}ms</span>
+            <div style={{ fontSize: 9, color: c.sub, marginTop: 2 }}>avg</div>
+          </StatCard>
+          <StatCard label="key deviation" c={c}>
+            <span style={{ color: 'var(--t-text)', fontSize: 16, fontWeight: 600 }}>{stats.keypressStdDev}ms</span>
+            <div style={{ fontSize: 9, color: c.sub, marginTop: 2 }}>std dev</div>
+          </StatCard>
+        </div>
+      )}
+
+      {/* Shortcut */}
+      <div className="text-center" style={{ marginTop: 28 }}>
         <span className="tip-glow text-[11px] tracking-wider">
-          tip: press <kbd className="glass rounded px-1.5 py-0.5 text-[10px] mx-0.5">esc</kbd> to restart
+          <kbd className="glass rounded px-1.5 py-0.5 text-[10px] mx-0.5">esc</kbd>
+          <span className="ml-1.5">- new test</span>
         </span>
       </div>
     </motion.div>
   )
 }
 
-function DetailBlock({ label, children, center, right, subColor }) {
+function StatCard({ label, children, c }) {
   return (
-    <div className={center ? 'text-center' : right ? 'text-right' : ''}>
-      <div className="text-[10px] uppercase tracking-[0.2em] mb-2" style={{ color: subColor }}>{label}</div>
-      <div className="text-[1.1rem] font-semibold tabular-nums">{children}</div>
+    <div style={{ ...glass, padding: '14px 16px', textAlign: 'center' }}>
+      <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 6, color: c.sub, fontWeight: 600 }}>{label}</div>
+      <div style={{ fontVariantNumeric: 'tabular-nums' }}>{children}</div>
     </div>
   )
 }
+

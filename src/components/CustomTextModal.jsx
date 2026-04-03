@@ -35,7 +35,7 @@ export default function CustomTextModal({ open, onClose, onSubmit }) {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="p-8">
+            <div className="p-5 sm:p-8">
               <h2 className="text-base font-semibold mb-1" style={{ color: 'var(--t-text)' }}>Custom Text</h2>
               <p className="text-[11px] mb-5" style={{ color: 'var(--t-sub)' }}>Paste or type your own text to practice</p>
 
