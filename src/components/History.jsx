@@ -91,7 +91,7 @@ export default function History({ onBack }) {
           </div>
 
           {/* Chart */}
-          <div style={{ ...glass, padding: '16px 12px', marginBottom: 20 }}>
+          <div style={{ ...glass, padding: '16px 12px', marginBottom: 20, overflow: 'hidden' }}>
             <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 12, color: c.sub, fontWeight: 600, paddingLeft: 8 }}>
               Performance Over Time
             </div>

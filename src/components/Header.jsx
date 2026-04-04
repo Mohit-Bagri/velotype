@@ -385,7 +385,7 @@ function CycleBtn({ value, options, onChange }) {
   return (
     <button onClick={next} title={`Click to cycle: ${options.join(' → ')}`}
       style={{
-        fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '5px 12px', borderRadius: 6, minWidth: 44, textAlign: 'center',
+        fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '5px 12px', borderRadius: 6, minWidth: 60, textAlign: 'center',
         color: on ? '#fff' : 'var(--t-sub)', background: on ? 'var(--t-accent)' : 'var(--t-glass)',
         border: '1px solid ' + (on ? 'var(--t-accent)' : 'var(--t-glass-border)'), transition: 'all 0.15s',
       }}>{value}</button>
@@ -420,7 +420,7 @@ function NumInput({ value, onChange, placeholder, suffix, min = 0, max }) {
           onChange(v)
         }}
         style={{
-          width: 52, textAlign: 'right', background: 'var(--t-glass)', border: '1px solid var(--t-glass-border)',
+          width: 72, textAlign: 'right', background: 'var(--t-glass)', border: '1px solid var(--t-glass-border)',
           borderRadius: 6, padding: '5px 8px', fontSize: 12, fontWeight: 500, outline: 'none',
           color: value > 0 ? 'var(--t-text)' : 'var(--t-sub)',
         }} />
