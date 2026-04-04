@@ -192,7 +192,7 @@ function App() {
             className="flex justify-center mb-4"
           >
             <h1 className="sr-only">VeloType - Typing Speed Test</h1>
-            <pre className="ascii-glow select-none text-left" aria-hidden="true">{LOGO}</pre>
+            <pre className="ascii-glow select-none text-left" aria-hidden="true" style={{ maxWidth: '100%', overflow: 'hidden' }}>{LOGO}</pre>
           </motion.div>
 
           {/* Floating navbar — centered below logo */}
